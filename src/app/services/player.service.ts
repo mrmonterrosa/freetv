@@ -22,9 +22,9 @@ export class PlayerService {
   };
   
   public selectedM3u : Item = {
-    thumb_square : '/assets/Freetv.jpg',
+    thumb_square : '/freetv/assets/Freetv.jpg', // "/assets/Freetv.jpg" dejar de esta forma si se trabja en local
     title: 'Freetv',
-    media_url: '/assets/movie.mp4',
+    media_url: '/freetv/assets/movie.mp4',   // de lo contrario utilizar el nombre del repositorio para encontrar el recurso.
   };
 
   private originalCanales : Item[] = [];
@@ -74,9 +74,9 @@ export class PlayerService {
     
     if(item === undefined) {
       this.selectedM3u = {
-        thumb_square : '/assets/Freetv.jpg',
+        thumb_square : '/freetv/assets/Freetv.jpg',
         title: 'Freetv',
-        media_url: '/assets/movie.mp4',
+        media_url: '/freetv/assets/movie.mp4',
       };
       this.router.navigate(['']);
     } else {
