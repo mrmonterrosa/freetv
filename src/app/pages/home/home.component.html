@@ -1,0 +1,39 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-8 player">            
+            <router-outlet></router-outlet>
+            <div >
+                <span class="badge bg-danger text-white">Reproduciendo {{ canalSeleted.title }}</span>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-4 list-canal">
+            <app-search></app-search>
+            <div class="list-items">
+                <app-card-item [data]="item"
+                    *ngFor="let item of canales.list.item">
+                </app-card-item>
+            </div>
+        </div>
+    </div>
+    <div class="row text-white">
+        <div class="col-sm-12 col-md-8">
+            <p>
+                <strong>Descripción:</strong> Esta aplicación es una recopilación de algunos canales de televisión libres en internet, 
+                en ningún momento se tiene pensado cobrar por este servicio ni lucrarse por medio de publicidad. 
+                Ve al repositorio y descarga las fuentes del proyecto.
+            </p>
+        </div>
+        <div class="col-sm-12 col-md-4">
+            <div class="row">
+                <div class="col">
+                    <strong>Repositorio: </strong> <a href="https://www.cagmon.com" target="_blank">GitHub Repository</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <strong>Desarrollado por: </strong> <a href="https://www.cagmon.com" target="_blank">www.cagmon.com</a>
+                </div>
+            </div> 
+        </div>
+    </div>
+</div>

@@ -1,0 +1,23 @@
+<div class="card mb-1 text-white border" (click)="redirectTo(data.id)" 
+        [ngClass]="itemSelected.id === data.id ? 'bg-primary' : 'bg-dark'">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-3">
+                <img height="80" width="80" [src]="data.thumb_square" class="img-responsive" [alt]="data.title">
+            </div>
+            <div class="col">
+                <h6><strong>{{ data.title }}</strong></h6>
+                <i>{{ data.group }}</i><br>
+                <label>{{ data.country }}</label>
+            </div>
+            <div class="col text-end">
+                <div class="row">
+                    <div class="col-2 ">
+                        <i class="bi bi-star-fill text-warning"></i>
+                        <span class="badge bg-danger">EN VIVO</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,13 @@
+<div class="ratio ratio-16x9">
+    <vm-player controls isLive="true" autoplay="true" isFullscreenActive="true" isTouch="true">
+        <vm-hls crossOrigin="true" version="latest" [poster]="canal.thumb_square">
+            <source data-src="{{ canal.media_url }}" type="application/x-mpegURL" />
+        </vm-hls>
+        <ng-container *ngIf="canal.title === 'Freetv'">
+            <vm-video crossOrigin="false" version="latest" [poster]="canal.thumb_square">
+                <source data-src="{{ canal.media_url }}" type="video/mp4" />
+            </vm-video>
+        </ng-container>
+        
+    </vm-player>
+</div>
