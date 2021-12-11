@@ -13,3 +13,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 [API Option 2](https://mrmonterrosaapi.azurewebsites.net/iptv/)
 
+## Web Page in Production
+[GitHub Pages](https://mrmonterrosa.github.io/freetv/)
+
+[Cagmon.com](https://freetv.cagmon.com/)
