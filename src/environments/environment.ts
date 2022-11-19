@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  url : 'https://mrmonterrosaapi.azurewebsites.net/iptv/'
+  url : 'https://mrmonterrosa.site/iptv/'
 };
 
 /*
