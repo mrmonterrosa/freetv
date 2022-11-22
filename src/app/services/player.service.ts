@@ -11,6 +11,11 @@ import { Subscription } from 'rxjs';
 export class PlayerService {
 
   private url = '';
+  private itemSeleted : Item = {
+    thumb_square : '/assets/Freetv.jpg', // "/assets/Freetv.jpg" dejar de esta forma si se trabja en local
+    title: 'Freetv',
+    media_url: '/assets/movie.mp4',   // de lo contrario utilizar el nombre del repositorio para encontrar el recurso.
+  };
 
   private canales : M3UResponse = {
     list : {
@@ -22,9 +27,9 @@ export class PlayerService {
   };
   
   public selectedM3u : Item = {
-    thumb_square : '/freetv/assets/Freetv.jpg', // "/assets/Freetv.jpg" dejar de esta forma si se trabja en local
+    thumb_square : '/assets/Freetv.jpg', // "/assets/Freetv.jpg" dejar de esta forma si se trabja en local
     title: 'Freetv',
-    media_url: '/freetv/assets/movie.mp4',   // de lo contrario utilizar el nombre del repositorio para encontrar el recurso.
+    media_url: '/assets/movie.mp4',   // de lo contrario utilizar el nombre del repositorio para encontrar el recurso.
   };
 
   private originalCanales : Item[] = [];
@@ -33,6 +38,37 @@ export class PlayerService {
     return this.canales;
   }
   
+  public setCanal(channel :Item) {
+    this.itemSeleted = channel;
+    this.saveItemLocal(this.itemSeleted);
+  }
+
+  get getChannelSeleted() : Item {
+    this.getItemLocal();
+    return this.itemSeleted;
+  }
+
+  private saveItemLocal(channel :Item){
+    localStorage.setItem("channel", JSON.stringify(channel));
+  }
+
+  private getItemLocal() {
+    if(localStorage.getItem("channel") !== null) {
+      let data = JSON.parse(localStorage.getItem("channel")!);
+      this.itemSeleted.author = data.author;
+      this.itemSeleted.country = data.country;
+      this.itemSeleted.group = data.group;
+      this.itemSeleted.id = data.id;
+      this.itemSeleted.language = data.language;
+      this.itemSeleted.media_url = data.media_url;
+      this.itemSeleted.playlistURL = data.playlistURL;
+      this.itemSeleted.service = data.service;
+      this.itemSeleted.thumb_square = data.thumb_square;
+      this.itemSeleted.title = data.title;
+      this.itemSeleted.url = data.url;
+    }
+  }
+
   constructor(private http : HttpClient,
               private router :  Router) {
     this.url = environment.url;

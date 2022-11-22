@@ -14,7 +14,7 @@ export class PlayerComponent {
   public canalData! : Item;
 
   get canal() : Item {
-    return this.playerService.selectedM3u;
+    return this.playerService.getChannelSeleted;
   }
 
   constructor(private playerService : PlayerService,

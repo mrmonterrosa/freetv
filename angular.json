@@ -30,9 +30,13 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "src/assets/css/bootstrap.min.css",
+              "src/assets/css/dashboard.css"
             ],
-            "scripts": []
+            "scripts": [
+              "src/assets/js/dashboard.js"
+            ]
           },
           "configurations": {
             "production": {

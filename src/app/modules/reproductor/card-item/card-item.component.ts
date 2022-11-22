@@ -17,12 +17,21 @@ export class CardItemComponent {
     return this.playerService.selectedM3u;
   }
 
-  constructor(private router :  Router,
-              private playerService : PlayerService) { }
+  get getChannel() : Item {
+    return this.playerService.getChannelSeleted;
+  }
 
-  redirectTo(id : any) {
+  constructor(private router :  Router,
+              private playerService : PlayerService) {
+                
+                this.data = this.playerService.getChannelSeleted;
+
+              }
+
+  redirectTo(data : Item) {
+    this.playerService.setCanal(data);
     this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => {
-      this.router.navigate([id]);
+      this.router.navigate([data.id]);
     });
   }
 
