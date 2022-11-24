@@ -11,11 +11,6 @@ import { PlayerService } from '../../../services/player.service';
 export class CardItemComponent {
 
   @Input() data! : Item;
-  private selectItem : Item = {};
-
-  get itemSelected() {
-    return this.playerService.selectedM3u;
-  }
 
   get getChannel() : Item {
     return this.playerService.getChannelSeleted;

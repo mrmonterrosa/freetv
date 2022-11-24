@@ -14,13 +14,11 @@ import { RouterModule } from '@angular/router';
     PlayerComponent,
     CardItemComponent,
     SearchComponent,
-    MenuFlotanteComponent
   ],
   exports: [
     PlayerComponent,
     CardItemComponent,
     SearchComponent,
-    MenuFlotanteComponent
   ],
   imports: [
     CommonModule,

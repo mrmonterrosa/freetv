@@ -11,7 +11,9 @@ import { Subscription } from 'rxjs';
 export class PlayerService {
 
   private url = '';
+  
   private itemSeleted : Item = {
+    id: 'freetv',
     thumb_square : '/assets/Freetv.jpg', // "/assets/Freetv.jpg" dejar de esta forma si se trabja en local
     title: 'Freetv',
     media_url: '/assets/movie.mp4',   // de lo contrario utilizar el nombre del repositorio para encontrar el recurso.
@@ -26,7 +28,7 @@ export class PlayerService {
 
   };
   
-  public selectedM3u : Item = {
+  private selectedM3u : Item = {
     thumb_square : '/assets/Freetv.jpg', // "/assets/Freetv.jpg" dejar de esta forma si se trabja en local
     title: 'Freetv',
     media_url: '/assets/movie.mp4',   // de lo contrario utilizar el nombre del repositorio para encontrar el recurso.
@@ -90,15 +92,24 @@ export class PlayerService {
    * @param termino query de busqueda
    */
   public getChannelListByName(termino : string) : void {
-    termino = termino.toLowerCase();
-    let listItem : Item[] = this.canales.list.item
-      .filter(canal => canal.title?.toLocaleLowerCase().includes(termino));
-    
-    if(listItem.length !== 0) {
-      this.canales.list.item = listItem;
-    } else {
+
+    termino = termino.trim().toLowerCase();
+
+    if(termino.length === 0) {
       this.canales.list.item = this.originalCanales;
+      this.scrollSelected();
+      return;
+    };
+   
+    this.canales.list.item = [...this.originalCanales];
+    this.canales.list.item = this.canales.list.item
+    .filter(canal => canal.title?.toLocaleLowerCase().includes(termino));
+
+    if(this.canales.list.item.length === 0) {
+      this.canales.list.item = [...this.originalCanales];
+      this.scrollSelected();
     }
+
   }
   /**
    * Obtiene el Canal (Item) según el id.
@@ -108,7 +119,7 @@ export class PlayerService {
     let item : Item | undefined  = this.canales.list.item
       .find(canal => canal.id === id);
     
-    if(item === undefined) {
+    if(item === undefined || item === null) {
       this.selectedM3u = {
         thumb_square : '/freetv/assets/Freetv.jpg',
         title: 'Freetv',
@@ -120,5 +131,13 @@ export class PlayerService {
     }
   }
 
+
+  public scrollSelected() : void {
+    
+      setTimeout(() => {
+        document.getElementById(this.itemSeleted.id!)?.scrollIntoView({ behavior: "smooth"});
+      }, 1500);
+  }
+  
 
 }

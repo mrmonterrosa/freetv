@@ -1,48 +1,9 @@
-<!-- <div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-12 col-md-8 player">            
-            <router-outlet></router-outlet>
-            <div >
-                <span class="badge bg-danger text-white">Reproduciendo {{ canalSeleted.title }}</span>
-            </div>
-        </div>
-        <div class="col-sm-12 col-md-4 list-canal">
-            <app-search></app-search>
-            <div class="list-items">
-                <app-card-item [data]="item"
-                    *ngFor="let item of canales.list.item">
-                </app-card-item>
-            </div>
-        </div>
-    </div>
-    <div class="row text-white">
-        <div class="col-sm-12 col-md-8">
-            <p>
-                <strong>Descripción:</strong> Esta aplicación es una recopilación de algunos canales de televisión libres en internet, 
-                en ningún momento se tiene pensado cobrar por este servicio ni lucrarse por medio de publicidad. 
-                Ve al repositorio y descarga las fuentes del proyecto.
-            </p>
-        </div>
-        <div class="col-sm-12 col-md-4">
-            <div class="row">
-                <div class="col">
-                    <strong>Repositorio: </strong> <a href="https://github.com/mrmonterrosa/freetv" target="_blank">GitHub Repository</a>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <strong>Desarrollado por: </strong> <a href="https://www.cagmon.com" target="_blank">www.cagmon.com</a>
-                </div>
-            </div> 
-        </div>
-    </div>
-</div> -->
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="aplicación para ver televisión que esta expuesta en internet de manera libre">
+    <meta name="description" content="aplicación para ver televisión que esta expuesta en internet de manera gratuita.">
     <meta name="author" content="Carlos Monterrosa">
     <meta name="generator" content="mrmonterrosa">
     <title>Libre Latino Tv</title>
@@ -75,7 +36,7 @@
   <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
-  <input class="form-control form-control-dark w-100" type="text" placeholder="Buscar canal" aria-label="Buscar">
+  <app-search class="w-100"></app-search>
   <div class="navbar-nav">
     <div class="nav-item text-nowrap">
       <a class="nav-link px-3" >Contacto</a>
@@ -102,8 +63,8 @@
               </div>
               <span class="d-flex justify-content-center">Cargando...</span>
         </ng-container>
-        <ul class="list-group">
-          <app-card-item [data]="item" *ngFor="let item of canales.list.item"></app-card-item>
+        <ul class="list-group" id="channels">
+          <app-card-item [data]="item" *ngFor="let item of canales.list.item" [class]="item.id"></app-card-item>
         </ul>
         
       </div>

@@ -35,7 +35,7 @@
               "src/assets/css/dashboard.css"
             ],
             "scripts": [
-              "src/assets/js/dashboard.js"
+              "src/assets/js/bootstrap.bundle.min.js"
             ]
           },
           "configurations": {

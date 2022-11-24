@@ -19,11 +19,8 @@ export class SearchComponent {
    */
   search() {
     const texto = this.texto.nativeElement.value;
-    if (texto.trim().length === 0) {
-      return;
-    }
     this.playerService.getChannelListByName(texto);
-    this.texto.nativeElement.value = '';
+    this.playerService.scrollSelected;
   }
 
 }
