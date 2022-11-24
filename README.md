@@ -1,9 +1,9 @@
-# Freetv
+# Libre Latino Tv (LLTV)
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.0.1.
 
 ## Developer
-[Carlos Monterrosa](https://www.cagmon.com) 
+[Carlos Monterrosa](https://mrmonterrosa.site) 
 
 ## API Conversion PHP M3u to Json Repository Original
 [Repository](https://github.com/onigetoc/m3u8-PHP-Parser)
@@ -16,4 +16,4 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 ## Web Page in Production
 [GitHub Pages](https://mrmonterrosa.github.io/freetv/)
 
-[Cagmon.com](https://freetv.cagmon.com/)
+[mrmonterrosa.site](https://lltv.cagmon.com/)

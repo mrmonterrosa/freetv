@@ -31,22 +31,51 @@
   </head>
   <body>
     
-<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
   <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">Libre Latino Tv</a>
-  <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+  <button class="navbar-toggler position-absolute d-md-none d-sm-none d-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
   <app-search class="w-100"></app-search>
+  <div class="navbar-nav">    
+    <div class="nav-item text-nowrap" title="M3U">
+      <a class="nav-link px-3" target="_blank" href="https://raw.githubusercontent.com/mrmonterrosa/iptv/main/tv.m3u">
+        <i class="bi bi-file-earmark-music"></i>
+      </a>
+    </div>
+  </div>
   <div class="navbar-nav">
-    <div class="nav-item text-nowrap">
-      <a class="nav-link px-3" >Contacto</a>
+    <div class="nav-item text-nowrap" title="JSON">
+      <a class="nav-link px-3" target="_blank" href="https://mrmonterrosaapi.azurewebsites.net/iptv/">
+        <i class="bi bi-filetype-json"></i>
+      </a>
+    </div>
+  </div>
+  <div class="navbar-nav">
+    <div class="nav-item text-nowrap" title="APP">
+      <a class="nav-link px-3" target="_blank" href="https://mrmonterrosa.site/iptv/Libre_Latino_TV.apk">
+        <i class="bi bi-google-play"></i>
+      </a>
+    </div>
+  </div>
+  <div class="navbar-nav">
+    <div class="nav-item text-nowrap" title="TELEGRAM">
+      <a class="nav-link px-3" target="_blank" href="https://t.me/librelatinotv">
+        <i class="bi bi-telegram"></i>
+      </a>
+    </div>
+  </div>
+  <div class="navbar-nav">
+    <div class="nav-item text-nowrap" title="CODIGO">
+      <a class="nav-link px-3" target="_blank" href="https://github.com/mrmonterrosa/freetv/archive/refs/heads/libre_latino_tv.zip">
+        <i class="bi bi-code-square"></i></a>
     </div>
   </div>
 </header>
 
 <div class="container-fluid">
   <div class="row">
-    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar d-sm-none d-none">
       <div class="position-sticky pt-3">
         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
           <span>Canales</span>
@@ -72,8 +101,23 @@
 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 bg-dark ">
 
-      <router-outlet></router-outlet>
+      
+      <router-outlet class=""></router-outlet>
 
+      <div class="col-md-3 col-lg-2 d-md-block bg-light">
+        <ng-container *ngIf="canales.list.item.length === 0" class="d-lg-none d-md-none">
+          <div class="d-flex justify-content-center">
+              <div class="spinner-border" role="status">
+                
+              </div>
+              
+            </div>
+            <span class="d-flex justify-content-center">Cargando...</span>
+        </ng-container>
+        <ul class="list-group d-lg-none d-md-none text-black" id="channels">
+          <app-card-item [data]="item" *ngFor="let item of canales.list.item" [class]="item.id"></app-card-item>
+        </ul>
+      </div>
     </main>
   </div>
 </div>

@@ -103,7 +103,9 @@ export class PlayerService {
    
     this.canales.list.item = [...this.originalCanales];
     this.canales.list.item = this.canales.list.item
-    .filter(canal => canal.title?.toLocaleLowerCase().includes(termino));
+    .filter(canal => this.deleteDiacritico(canal.title!)?.toLocaleLowerCase().includes(this.deleteDiacritico(termino)) 
+      || this.deleteDiacritico(canal.group!)?.toLocaleLowerCase().includes(this.deleteDiacritico(termino))
+      || this.deleteDiacritico(canal.country!)?.toLocaleLowerCase().includes(this.deleteDiacritico(termino)));
 
     if(this.canales.list.item.length === 0) {
       this.canales.list.item = [...this.originalCanales];
@@ -120,14 +122,15 @@ export class PlayerService {
       .find(canal => canal.id === id);
     
     if(item === undefined || item === null) {
-      this.selectedM3u = {
+      this.itemSeleted = {
+        id: 'freetv',
         thumb_square : '/freetv/assets/Freetv.jpg',
         title: 'Freetv',
         media_url: '/freetv/assets/movie.mp4',
       };
       this.router.navigate(['']);
     } else {
-      this.selectedM3u = item;      
+      this.itemSeleted = item;
     }
   }
 
@@ -139,5 +142,7 @@ export class PlayerService {
       }, 1500);
   }
   
-
+  deleteDiacritico(text:string) {
+    return text.normalize('NFD').replace(/[\u0300-\u036f]/g,"");
+  }
 }
