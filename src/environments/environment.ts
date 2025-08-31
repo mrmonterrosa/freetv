@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  url : 'https://mrmonterrosa.site/iptv/'
+  url : 'https://tv.mrmonterrosa.com/iptv/'
 };
 
 /*
