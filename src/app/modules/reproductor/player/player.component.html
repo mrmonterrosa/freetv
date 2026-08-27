@@ -1,13 +1,48 @@
-<div class="ratio ratio-16x9">
-    <vm-player controls isLive="true" autoplay="true" isFullscreenActive="true" isTouch="true">
-        <vm-hls crossOrigin="true" version="latest" [poster]="canal.thumb_square">
-            <source data-src="{{ canal.media_url }}" type="application/x-mpegURL" />
-        </vm-hls>
-        <ng-container *ngIf="canal.title === 'Freetv'">
-            <vm-video crossOrigin="false" version="latest" [poster]="canal.thumb_square">
-                <source data-src="{{ canal.media_url }}" type="video/mp4" />
-            </vm-video>
-        </ng-container>
-        
-    </vm-player>
+<div class="player-cinema-wrapper">
+  <div class="ratio ratio-16x9 player-screen">
+    
+    <!-- Native HTML5 Hardware-Accelerated Video Player -->
+    <video 
+      #videoPlayer
+      class="w-100 h-100 native-video-player"
+      [poster]="canal.thumb_square || 'assets/Freetv.jpg'"
+      controls
+      autoplay
+      playsinline
+      webkit-playsinline
+      crossorigin="anonymous"
+      (playing)="onPlaying()"
+      (canplay)="onCanPlay()"
+      (waiting)="onWaiting()"
+      (error)="onVideoError($event)">
+      Tu navegador no soporta el elemento de video.
+    </video>
+
+    <!-- Loading Spinner Overlay with 3-Attempt Progress -->
+    <div *ngIf="isLoading" class="player-overlay loading-overlay">
+      <div class="spinner-brand mb-2"></div>
+      <span class="loading-label">{{ loadingMessage }}</span>
+      <span *ngIf="attempt > 1" class="attempt-badge mt-2">
+        <i class="bi bi-arrow-repeat me-1"></i> Intento {{ attempt }} de {{ MAX_ATTEMPTS }}
+      </span>
+    </div>
+
+    <!-- Error Recovery Overlay -->
+    <div *ngIf="hasError" class="player-overlay error-overlay">
+      <div class="error-icon-circle mb-2">
+        <i class="bi bi-broadcast-pin text-warning fs-3"></i>
+      </div>
+      <h4 class="error-title">Señal no disponible</h4>
+      <p class="error-desc">{{ errorMessage }}</p>
+      <div class="d-flex align-items-center justify-content-center gap-2 mt-2 flex-wrap">
+        <button type="button" class="btn-brand-primary btn-sm" (click)="retryPlayback()">
+          <i class="bi bi-arrow-clockwise me-1"></i> Reintentar
+        </button>
+        <button type="button" class="btn-brand-secondary btn-sm" (click)="playNextChannel()">
+          <i class="bi bi-skip-forward-fill me-1"></i> Siguiente canal
+        </button>
+      </div>
+    </div>
+
+  </div>
 </div>

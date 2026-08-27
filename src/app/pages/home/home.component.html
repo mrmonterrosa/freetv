@@ -1,39 +1,285 @@
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-12 col-md-8 player">            
-            <router-outlet></router-outlet>
-            <div >
-                <span class="badge bg-danger text-white">Reproduciendo {{ canalSeleted.title }}</span>
-            </div>
+<div class="freetv-app-wrapper">
+  
+  <!-- ==========================================================================
+       🌟 Top App Bar / Header
+       ========================================================================== -->
+  <header class="top-app-bar mb-4">
+    <div class="header-container">
+      
+      <!-- Brand & Status -->
+      <div class="brand-group">
+        <a routerLink="/" class="brand-logo-link">
+          <div class="brand-icon-box">
+            <i class="bi bi-broadcast-pin"></i>
+          </div>
+          <div class="brand-text">
+            <span class="brand-title">Free<span class="text-amber">TV</span></span>
+            <span class="brand-eyebrow">BY MR. MONTERROSA</span>
+          </div>
+        </a>
+
+        <!-- Live Pulse Badge -->
+        <div class="badge-brand-live ms-2 d-none d-sm-inline-flex">
+          <span class="live-dot"></span>
+          <span>EN VIVO</span>
         </div>
-        <div class="col-sm-12 col-md-4 list-canal">
+      </div>
+
+      <!-- Center / Live Channel Counter -->
+      <div class="d-none d-md-flex align-items-center">
+        <div class="badge-brand-amber">
+          <i class="bi bi-tv-fill me-1"></i>
+          <span>{{ totalCanales }} Canales Libres</span>
+        </div>
+      </div>
+
+      <!-- Quick Action Navigation -->
+      <div class="header-actions">
+        <a 
+          href="https://github.com/mrmonterrosa/freetv" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          class="btn-brand-secondary d-none d-sm-inline-flex"
+          title="Ver código fuente en GitHub">
+          <i class="bi bi-github"></i>
+          <span>GitHub</span>
+        </a>
+        <a 
+          href="https://mrmonterrosa.com" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          class="btn-brand-primary"
+          title="Visitar portafolio oficial">
+          <span class="d-none d-sm-inline">Carlos Monterrosa</span>
+          <span class="d-inline d-sm-none">Carlos M.</span>
+          <i class="bi bi-arrow-up-right"></i>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       📦 Main Bento Grid: Player Stage & Channel Explorer
+       ========================================================================== -->
+  <main class="main-content mb-4">
+    <div class="row g-4">
+      
+      <!-- 🎬 Left Column: Hero Video Player Stage (Bento Box) -->
+      <section class="col-12 col-lg-8" aria-label="Reproductor en vivo">
+        <div class="bento-box hero-player-bento p-3 p-sm-4">
+          <!-- Ambient Glow Effect -->
+          <div class="ambient-glow glow-top-right"></div>
+          
+          <div class="position-relative" style="z-index: 1;">
+            <!-- Player Outlet -->
+            <div class="player-stage-frame">
+              <router-outlet></router-outlet>
+            </div>
+
+            <!-- Now Playing Channel Metadata Bar -->
+            <div class="now-playing-bar mt-3 pt-3">
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                
+                <!-- Channel Identity Info -->
+                <div class="d-flex align-items-center gap-3">
+                  <div class="now-playing-thumb">
+                    <img 
+                      *ngIf="canalSeleted.thumb_square" 
+                      [src]="canalSeleted.thumb_square" 
+                      [alt]="canalSeleted.title || 'Canal'"
+                      class="now-playing-img"
+                      onerror="this.style.display='none'">
+                    <div class="now-playing-thumb-fallback">
+                      <i class="bi bi-tv"></i>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div class="d-flex align-items-center gap-2">
+                      <h1 class="now-playing-title mb-0">{{ canalSeleted.title || 'Canal en vivo' }}</h1>
+                      <span class="badge-brand-live">
+                        <span class="live-dot"></span> LIVE
+                      </span>
+                    </div>
+                    
+                    <div class="d-flex align-items-center gap-2 mt-1">
+                      <span *ngIf="canalSeleted.group" class="badge-brand-subtle">
+                        <i class="bi bi-tag-fill me-1"></i>{{ canalSeleted.group }}
+                      </span>
+                      <span *ngIf="canalSeleted.country" class="badge-brand-amber">
+                        <i class="bi bi-geo-alt-fill me-1"></i>{{ canalSeleted.country }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Player Action Toolbar -->
+                <div class="player-toolbar d-flex align-items-center gap-2">
+                  <button 
+                    type="button" 
+                    class="btn-brand-icon" 
+                    [class.active]="isCurrentFav"
+                    (click)="toggleCurrentFav()"
+                    [title]="isCurrentFav ? 'Quitar de favoritos' : 'Guardar en favoritos'">
+                    <i class="bi" [ngClass]="isCurrentFav ? 'bi-star-fill' : 'bi-star'"></i>
+                  </button>
+
+                  <button 
+                    type="button" 
+                    class="btn-brand-icon" 
+                    (click)="copyStreamLink()"
+                    title="Copiar enlace de transmisión">
+                    <i class="bi bi-share-fill"></i>
+                  </button>
+
+                  <button 
+                    type="button" 
+                    class="btn-brand-icon" 
+                    (click)="reloadStream()"
+                    title="Recargar transmisión">
+                    <i class="bi bi-arrow-clockwise"></i>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- 📺 Right Column: Channel Explorer (Bento Box) -->
+      <aside class="col-12 col-lg-4" aria-label="Explorador de canales">
+        <div class="bento-box explorer-bento p-3 p-sm-4">
+          <!-- Ambient Glow Effect -->
+          <div class="ambient-glow glow-bottom-left"></div>
+
+          <div class="position-relative d-flex flex-column h-100" style="z-index: 1;">
+            
+            <!-- Explorer Header -->
+            <div class="explorer-header d-flex align-items-center justify-content-between mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-collection-play-fill text-amber fs-5"></i>
+                <h2 class="explorer-title mb-0">Explorar Canales</h2>
+              </div>
+              <span class="badge-brand-subtle">
+                {{ canales.list.item.length }} resultados
+              </span>
+            </div>
+
+            <!-- Search & Category Filter Chips -->
             <app-search></app-search>
-            <div class="list-items">
-                <app-card-item [data]="item"
-                    *ngFor="let item of canales.list.item">
+
+            <!-- Sleek Ambient Gradient Divider -->
+            <div class="explorer-divider"></div>
+
+            <!-- Scrollable Channels List with Ambient Gradient Fade -->
+            <div class="list-items-wrapper position-relative flex-grow-1">
+              <div class="list-items" tabindex="0" aria-label="Lista de canales">
+                
+                <!-- Channel Cards -->
+                <app-card-item 
+                  [data]="item"
+                  [isSelected]="!!item.id && item.id === currentChannelId"
+                  *ngFor="let item of canales.list.item; trackBy: trackByChannelId">
                 </app-card-item>
+
+                <!-- Empty Search / Filter State -->
+                <div *ngIf="canales.list.item.length === 0" class="empty-state py-5 text-center">
+                  <div class="empty-state-icon mb-3">
+                    <i class="bi bi-search text-amber"></i>
+                  </div>
+                  <h3 class="empty-state-title">Sin canales encontrados</h3>
+                  <p class="empty-state-text">No hay canales que coincidan con el filtro actual o término de búsqueda.</p>
+                  <button type="button" class="btn-brand-secondary mt-2" (click)="resetFilters()">
+                    <i class="bi bi-arrow-repeat me-1"></i> Ver todos los canales
+                  </button>
+                </div>
+
+              </div>
             </div>
+
+          </div>
         </div>
+      </aside>
+
     </div>
-    <div class="row text-white">
-        <div class="col-sm-12 col-md-8">
-            <p>
-                <strong>Descripción:</strong> Esta aplicación es una recopilación de algunos canales de televisión libres en internet, 
-                en ningún momento se tiene pensado cobrar por este servicio ni lucrarse por medio de publicidad. 
-                Ve al repositorio y descarga las fuentes del proyecto.
+  </main>
+
+  <!-- ==========================================================================
+       📌 Bottom Bento Row: Info, Transparency & Creator
+       ========================================================================== -->
+  <footer class="footer-section">
+    <div class="row g-4">
+      
+      <!-- Card 1: Project Transparency & Info (8 cols) -->
+      <div class="col-12 col-lg-7">
+        <div class="bento-box p-4 h-100">
+          <div class="ambient-glow glow-top-right"></div>
+          <div class="position-relative" style="z-index: 1;">
+            <div class="eyebrow-tag mb-2">PROYECTO OPEN SOURCE</div>
+            <h2 class="footer-card-title mb-2">Televisión Abierta y Gratuita</h2>
+            <p class="footer-card-desc mb-3">
+              FreeTV es una plataforma experimental y abierta que recopila señales públicas de televisión en vivo transmitidas legalmente en internet. En ningún momento se cobra por este servicio ni se inserta publicidad de terceros. Todo el código fuente es público y extensible.
             </p>
-        </div>
-        <div class="col-sm-12 col-md-4">
-            <div class="row">
-                <div class="col">
-                    <strong>Repositorio: </strong> <a href="https://github.com/mrmonterrosa/freetv" target="_blank">GitHub Repository</a>
-                </div>
+            <div class="d-flex flex-wrap gap-2 pt-1">
+              <span class="badge-brand-subtle">Angular 22</span>
+              <span class="badge-brand-subtle">Material 3</span>
+              <span class="badge-brand-subtle">Bento Grid</span>
+              <span class="badge-brand-subtle">IPTV / HLS</span>
+              <span class="badge-brand-subtle">Mr. Monterrosa Design</span>
             </div>
-            <div class="row">
-                <div class="col">
-                    <strong>Desarrollado por: </strong> <a href="https://mrmonterrosa.com" target="_blank">Carlos Monterrosa</a>
-                </div>
-            </div> 
+          </div>
         </div>
+      </div>
+
+      <!-- Card 2: Carlos Monterrosa / Brand Links (5 cols) -->
+      <div class="col-12 col-lg-5">
+        <div class="bento-box p-4 h-100 d-flex flex-column justify-content-between">
+          <div class="ambient-glow glow-bottom-left"></div>
+          <div class="position-relative" style="z-index: 1;">
+            <div class="eyebrow-tag mb-2">ARQUITECTURA & DESARROLLO</div>
+            <h2 class="footer-card-title mb-2">Carlos Monterrosa</h2>
+            <p class="footer-card-desc mb-3">
+              Senior Software Engineer & Frontend Architect. Descubre más proyectos del ecosistema y herramientas de código abierto en mi sitio web.
+            </p>
+          </div>
+
+          <div class="position-relative d-flex flex-wrap gap-2 pt-2" style="z-index: 1;">
+            <a 
+              href="https://mrmonterrosa.com" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="btn-brand-primary flex-grow-1">
+              <span>mrmonterrosa.com</span>
+              <svg class="bi bi-arrow-right ms-1" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </a>
+            <a 
+              href="https://github.com/mrmonterrosa/freetv" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="btn-brand-secondary"
+              title="Repositorio de GitHub">
+              <i class="bi bi-github"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
     </div>
+  </footer>
+
+  <!-- ==========================================================================
+       💬 Toast Feedback Notification
+       ========================================================================== -->
+  <div class="freetv-toast" [class.show]="showToast" role="status" aria-live="polite">
+    <div class="toast-content">
+      <i class="bi bi-check-circle-fill text-amber me-2"></i>
+      <span>{{ toastMessage }}</span>
+    </div>
+  </div>
+
 </div>

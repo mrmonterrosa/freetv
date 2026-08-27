@@ -1,0 +1,193 @@
+.search-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ==========================================================================
+   🔍 M3 Search Bar
+   ========================================================================== */
+
+.m3-search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 48px;
+  background-color: var(--sub-card-dark, #1d1e24);
+  border: 1px solid var(--border-dark, rgba(255, 255, 255, 0.08));
+  border-radius: 16px;
+  padding: 0 1rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.m3-search-bar:focus-within {
+  border-color: var(--brand-400, #facc15);
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.15);
+  background-color: #22232a;
+}
+
+.search-icon {
+  color: var(--brand-400, #facc15);
+  font-size: 1rem;
+  margin-right: 0.75rem;
+  opacity: 0.9;
+}
+
+.m3-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary, #ffffff);
+  font-size: 0.875rem;
+  font-family: inherit;
+  font-weight: 500;
+}
+
+.m3-search-input::placeholder {
+  color: var(--text-muted, #737373);
+}
+
+.btn-clear-search {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary, #a3a3a3);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.3rem 0.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.btn-clear-search:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ==========================================================================
+   🏷️ M3 Filter Chips - Horizontal Scrollable Carousel Bar
+   ========================================================================== */
+
+.m3-chips-scroll {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.55rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  width: 100%;
+  padding: 6px 4px 12px 4px;
+  margin: 0;
+  box-sizing: border-box;
+
+  /* Hide chunky browser scrollbars while keeping smooth scroll */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.m3-chips-scroll::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.m3-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  padding: 0.45rem 0.95rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary, #d4d4d4);
+  background-color: var(--sub-card-dark, #1d1e24);
+  border: 1px solid var(--border-dark, rgba(255, 255, 255, 0.08));
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.m3-filter-chip:hover {
+  background-color: rgba(250, 204, 21, 0.12);
+  border-color: rgba(250, 204, 21, 0.4);
+  color: var(--brand-400, #facc15);
+  transform: translateY(-1px);
+}
+
+.m3-filter-chip.active {
+  background-color: var(--brand-400, #facc15);
+  border-color: var(--brand-400, #facc15);
+  color: #0a0a0a;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(250, 204, 21, 0.35);
+  transform: translateY(-1px);
+}
+
+.chip-counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  margin-left: 0.45rem;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: inherit;
+}
+
+.m3-filter-chip:not(.active) .chip-counter {
+  background-color: rgba(250, 204, 21, 0.2);
+  color: var(--brand-400, #facc15);
+}
+
+/* ==========================================================================
+   📱 Mobile UI/UX Optimizations (< 768px)
+   ========================================================================== */
+
+@media (max-width: 767.98px) {
+  .search-container {
+    gap: 0.5rem;
+  }
+
+  .m3-search-bar {
+    height: 44px;
+    padding: 0 0.85rem;
+    border-radius: 14px;
+  }
+
+  .search-icon {
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+  }
+
+  .m3-search-input {
+    font-size: 0.825rem;
+  }
+
+  .m3-chips-scroll {
+    gap: 0.45rem;
+    padding: 4px 2px 10px 2px;
+  }
+
+  .m3-filter-chip {
+    padding: 0.38rem 0.8rem;
+    font-size: 0.75rem;
+  }
+
+  .m3-filter-chip:active {
+    transform: scale(0.95);
+  }
+}

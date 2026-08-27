@@ -1,5 +1,41 @@
-<div class="mb-3">
-    <label for="buscar" class="form-label"></label>
-    <input type="text" (keyup.enter)="search()" class="form-control" name="buscar" #texto
-            id="buscar" aria-describedby="helpId" placeholder="Buscar...">
+<div class="search-container mb-3">
+  <!-- M3 Search Bar -->
+  <div class="m3-search-bar">
+    <i class="bi bi-search search-icon"></i>
+    <input 
+      type="text" 
+      class="m3-search-input" 
+      #texto
+      [value]="searchTerm"
+      (input)="onInput($event)"
+      (keyup.enter)="search()"
+      placeholder="Buscar canal, país o género..."
+      autocomplete="off"
+      aria-label="Buscar canal">
+    
+    <button 
+      *ngIf="searchTerm.length > 0" 
+      type="button" 
+      class="btn-clear-search" 
+      (click)="clearSearch()"
+      title="Limpiar búsqueda">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <!-- M3 Category Filter Chips - Horizontal Scrollable Bar -->
+  <div class="m3-chips-scroll" (wheel)="onWheel($event)" role="tablist" aria-label="Categorías de canales">
+    <button 
+      *ngFor="let cat of categories"
+      type="button"
+      class="m3-filter-chip"
+      [class.active]="activeCategory === cat"
+      (click)="selectCategory(cat)"
+      role="tab"
+      [attr.aria-selected]="activeCategory === cat">
+      <i class="bi me-1.5" [ngClass]="getCategoryIcon(cat)"></i>
+      <span>{{ cat }}</span>
+      <span *ngIf="cat === 'Favoritos' && totalFavorites > 0" class="chip-counter">{{ totalFavorites }}</span>
+    </button>
+  </div>
 </div>

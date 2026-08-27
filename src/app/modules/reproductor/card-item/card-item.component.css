@@ -1,0 +1,231 @@
+:host {
+  display: block;
+  margin-bottom: 0.65rem;
+}
+
+:host:last-child {
+  margin-bottom: 0;
+}
+
+.channel-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--sub-card-dark, #1d1e24);
+  border: 1px solid var(--border-dark, rgba(255, 255, 255, 0.07));
+  border-radius: var(--radius-card, 20px);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.channel-card:hover {
+  background-color: var(--hover-sub-dark, #262830);
+  border-color: rgba(250, 204, 21, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.5);
+}
+
+.channel-card.active {
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.09) 0%, rgba(29, 30, 36, 0.98) 100%);
+  border-color: var(--brand-400, #facc15);
+  box-shadow: 0 4px 18px -2px rgba(250, 204, 21, 0.22);
+}
+
+.channel-card.active .channel-logo-wrapper {
+  border-color: rgba(250, 204, 21, 0.45);
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.15);
+}
+
+/* Logo / Avatar */
+.channel-logo-wrapper {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  border-radius: 14px;
+  background-color: #141518;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 4px;
+}
+
+.channel-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.channel-logo-fallback {
+  color: var(--brand-400, #facc15);
+  font-size: 1.4rem;
+  opacity: 0.8;
+}
+
+/* Info */
+.channel-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.channel-title {
+  font-size: 0.925rem;
+  font-weight: 700;
+  color: var(--text-primary, #ffffff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s ease;
+}
+
+.channel-card.active .channel-title {
+  color: var(--brand-400, #facc15);
+}
+
+.channel-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.badge-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.group-tag {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary, #a3a3a3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.country-tag {
+  background-color: rgba(250, 204, 21, 0.08);
+  color: var(--brand-400, #facc15);
+  border: 1px solid rgba(250, 204, 21, 0.18);
+}
+
+/* Actions */
+.channel-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+}
+
+.btn-fav {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #737373);
+  font-size: 1.1rem;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-fav:hover {
+  color: var(--brand-400, #facc15);
+  transform: scale(1.2);
+}
+
+.btn-fav.is-fav {
+  color: var(--brand-400, #facc15);
+  text-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+}
+
+.live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  background-color: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #f87171;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.live-pulse-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #ef4444;
+  box-shadow: 0 0 6px #ef4444;
+  animation: pulse-live 1.5s infinite;
+}
+
+/* ==========================================================================
+   📱 Mobile UI/UX Optimizations (< 768px)
+   ========================================================================== */
+
+@media (max-width: 767.98px) {
+  :host {
+    margin-bottom: 0.5rem;
+  }
+
+  .channel-card {
+    padding: 0.6rem 0.75rem;
+    border-radius: 16px;
+    gap: 0.75rem;
+  }
+
+  .channel-card:active {
+    transform: scale(0.98);
+    background-color: var(--hover-sub-dark, #262830);
+  }
+
+  .channel-logo-wrapper {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 12px;
+    padding: 3px;
+  }
+
+  .channel-logo-fallback {
+    font-size: 1.2rem;
+  }
+
+  .channel-title {
+    font-size: 0.875rem;
+  }
+
+  .badge-tag {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.4rem;
+  }
+
+  .btn-fav {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    font-size: 1.05rem;
+  }
+
+  .live-pill {
+    font-size: 0.575rem;
+    padding: 0.1rem 0.4rem;
+  }
+}

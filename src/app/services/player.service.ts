@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { M3UResponse, Item } from '../interfaces/m3u.response';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
-import { Subscription } from 'rxjs';
+import { Subscription, catchError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -12,77 +12,276 @@ export class PlayerService {
 
   private url = '';
 
-  private canales : M3UResponse = {
-    list : {
-      item : [],
-      service : '',
+  private canales: M3UResponse = {
+    list: {
+      item: [],
+      service: '',
       title: ''
     },
-
   };
   
-  public selectedM3u : Item = {
-    thumb_square : '/freetv/assets/Freetv.jpg', // "/assets/Freetv.jpg" dejar de esta forma si se trabja en local
+  public selectedM3u: Item = {
+    thumb_square: 'assets/Freetv.jpg',
     title: 'Freetv',
-    media_url: '/freetv/assets/movie.mp4',   // de lo contrario utilizar el nombre del repositorio para encontrar el recurso.
+    media_url: 'assets/movie.mp4',
+    group: 'General',
+    country: 'Global'
   };
 
-  private originalCanales : Item[] = [];
+  private originalCanales: Item[] = [];
+  public selectedCategory: string = 'Todos';
+  public searchTerm: string = '';
+  public favorites: Set<string> = new Set<string>();
+  public dynamicCategories: string[] = [
+    'Todos',
+    'Favoritos',
+    'Deportes',
+    'Entretenimiento',
+    'Noticias',
+    'Música',
+    'Series',
+    'Películas',
+    'Religión',
+    'Cultura',
+    'Anime'
+  ];
 
-  get getCanales() : M3UResponse {
+  get getCanales(): M3UResponse {
     return this.canales;
   }
-  
-  constructor(private http : HttpClient,
-              private router :  Router) {
-    this.url = environment.url;
-    this.getChannelList();
 
+  get totalCanalesCount(): number {
+    return this.originalCanales.length;
   }
-  /**
-   * Obtiene la lista de canales desde el servicio. 
-   */
-  public getChannelList() : Subscription {
-    return this.http.get<M3UResponse>(this.url)
-      .subscribe(data => {
-        this.canales = data;
-        this.originalCanales = [...this.canales.list.item];
-      });
+
+  constructor(private http: HttpClient,
+              private router: Router) {
+    this.url = environment.url;
+    this.loadFavorites();
+    this.loadLocalChannels();
+    this.getChannelList();
   }
+
   /**
-   * Obtine una lista con las coincidencias del termino de busqueda.
-   * @param termino query de busqueda
+   * Carga los canales locales de respaldo de forma inmediata para evitar pantallas vacías.
    */
-  public getChannelListByName(termino : string) : void {
-    termino = termino.toLowerCase();
-    let listItem : Item[] = this.canales.list.item
-      .filter(canal => canal.title?.toLocaleLowerCase().includes(termino));
-    
-    if(listItem.length !== 0) {
-      this.canales.list.item = listItem;
-    } else {
-      this.canales.list.item = this.originalCanales;
+  private loadLocalChannels(): void {
+    this.http.get<M3UResponse>('assets/channels.json').subscribe({
+      next: (data: M3UResponse) => {
+        if (data && data.list && Array.isArray(data.list.item) && this.originalCanales.length === 0) {
+          this.canales = data;
+          this.originalCanales = [...data.list.item];
+          this.extractCategories();
+          this.applyFilters();
+        }
+      },
+      error: (err) => {
+        console.warn('No se pudieron cargar canales locales:', err);
+      }
+    });
+  }
+
+  /**
+   * Carga los favoritos guardados desde LocalStorage.
+   */
+  private loadFavorites(): void {
+    try {
+      const saved = localStorage.getItem('freetv_favorites');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          this.favorites = new Set<string>(parsed);
+        }
+      }
+    } catch (e) {
+      console.warn('No se pudieron cargar los favoritos desde localStorage', e);
     }
   }
+
+  /**
+   * Guarda los favoritos en LocalStorage.
+   */
+  private saveFavorites(): void {
+    try {
+      localStorage.setItem('freetv_favorites', JSON.stringify(Array.from(this.favorites)));
+    } catch (e) {
+      console.warn('No se pudieron guardar los favoritos en localStorage', e);
+    }
+  }
+
+  /**
+   * Alterna el estado de favorito de un canal.
+   */
+  public toggleFavorite(id?: string): boolean {
+    if (!id) return false;
+    let isFav = false;
+    if (this.favorites.has(id)) {
+      this.favorites.delete(id);
+      isFav = false;
+    } else {
+      this.favorites.add(id);
+      isFav = true;
+    }
+    this.saveFavorites();
+    if (this.selectedCategory === 'Favoritos') {
+      this.applyFilters();
+    }
+    return isFav;
+  }
+
+  /**
+   * Verifica si un canal es favorito.
+   */
+  public isFavorite(id?: string): boolean {
+    if (!id) return false;
+    return this.favorites.has(id);
+  }
+
+  /**
+   * Obtiene la lista de canales desde el servicio con fallback automático a canales locales. 
+   */
+  public getChannelList(): Subscription {
+    return this.http.get<M3UResponse>(this.url)
+      .pipe(
+        catchError(err => {
+          console.warn('API remota no disponible o bloqueada por navegador, cargando canales locales:', err);
+          return this.http.get<M3UResponse>('assets/channels.json');
+        })
+      )
+      .subscribe({
+        next: (data: M3UResponse) => {
+          if (data && data.list && Array.isArray(data.list.item)) {
+            this.canales = data;
+            this.originalCanales = [...data.list.item];
+            this.extractCategories();
+            this.applyFilters();
+          }
+        },
+        error: (err: any) => {
+          console.error('Error al cargar canales:', err);
+        }
+      });
+  }
+
+  /**
+   * Extrae y normaliza las categorías presentes en la lista de canales.
+   */
+  private extractCategories(): void {
+    const categorySet = new Set<string>();
+    for (const item of this.originalCanales) {
+      if (item.group && item.group.trim().length > 0) {
+        let groupName = item.group.trim();
+        const lower = groupName.toLowerCase();
+        if (lower === 'deporte' || lower === 'deportes') groupName = 'Deportes';
+        else if (lower === 'serie' || lower === 'series') groupName = 'Series';
+        else if (lower === 'pelicula' || lower === 'peliculas' || lower === 'películas') groupName = 'Películas';
+        else if (lower === 'musica' || lower === 'música') groupName = 'Música';
+        else if (lower === 'religion' || lower === 'religión') groupName = 'Religión';
+        else if (lower === 'noticia' || lower === 'noticias') groupName = 'Noticias';
+        else if (lower === 'cultura') groupName = 'Cultura';
+        else if (lower === 'entretenimiento') groupName = 'Entretenimiento';
+        else if (lower === 'anime') groupName = 'Anime';
+        categorySet.add(groupName);
+      }
+    }
+    const sorted = Array.from(categorySet).sort((a, b) => a.localeCompare(b, 'es'));
+    this.dynamicCategories = ['Todos', 'Favoritos', ...sorted];
+  }
+
+  /**
+   * Establece la categoría activa y filtra la lista.
+   */
+  public setCategory(category: string): void {
+    this.selectedCategory = category;
+    this.applyFilters();
+  }
+
+  /**
+   * Actualiza el término de búsqueda y aplica filtros.
+   */
+  public setSearchTerm(term: string): void {
+    this.searchTerm = term.trim().toLowerCase();
+    this.applyFilters();
+  }
+
+  /**
+   * Aplica los filtros combinados de búsqueda y categoría.
+   */
+  public applyFilters(): void {
+    let result = [...this.originalCanales];
+
+    // 1. Filtrar por categoría
+    if (this.selectedCategory === 'Favoritos') {
+      result = result.filter(item => item.id && this.favorites.has(item.id));
+    } else if (this.selectedCategory !== 'Todos') {
+      result = result.filter(item => {
+        if (!item.group) return false;
+        const grp = item.group.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const target = this.selectedCategory.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        if (target === 'deportes' && (grp === 'deporte' || grp === 'deportes')) return true;
+        if (target === 'series' && (grp === 'serie' || grp === 'series')) return true;
+        if (target === 'peliculas' && (grp === 'pelicula' || grp === 'peliculas')) return true;
+        return grp === target;
+      });
+    }
+
+    // 2. Filtrar por término de búsqueda
+    if (this.searchTerm.length > 0) {
+      result = result.filter(item => {
+        const title = (item.title || '').toLowerCase();
+        const country = (item.country || '').toLowerCase();
+        const group = (item.group || '').toLowerCase();
+        return title.includes(this.searchTerm) || 
+               country.includes(this.searchTerm) || 
+               group.includes(this.searchTerm);
+      });
+    }
+
+    this.canales.list.item = result;
+  }
+
+  /**
+   * Método de compatibilidad para búsqueda de canales.
+   */
+  public getChannelListByName(termino: string): void {
+    this.setSearchTerm(termino);
+  }
+
   /**
    * Obtiene el Canal (Item) según el id.
-   * @param id query de busqueda
    */
-  public getChannelById(id : string) : void {
-    let item : Item | undefined  = this.canales.list.item
-      .find(canal => canal.id === id);
+  public getChannelById(id: string): void {
+    let item: Item | undefined = this.originalCanales.length > 0
+      ? this.originalCanales.find(canal => canal.id === id)
+      : this.canales.list.item.find(canal => canal.id === id);
     
-    if(item === undefined) {
-      this.selectedM3u = {
-        thumb_square : '/freetv/assets/Freetv.jpg',
-        title: 'Freetv',
-        media_url: '/freetv/assets/movie.mp4',
-      };
-      this.router.navigate(['']);
+    if (item === undefined) {
+      if (this.originalCanales.length > 0 && id) {
+        // Si el id no coincide con ninguno, redirigir a Home
+        this.selectedM3u = {
+          thumb_square: 'assets/Freetv.jpg',
+          title: 'Freetv',
+          media_url: 'assets/movie.mp4',
+          group: 'General',
+          country: 'Global'
+        };
+        this.router.navigate(['']);
+      }
     } else {
       this.selectedM3u = item;      
     }
   }
 
+  /**
+   * Obtiene el siguiente canal disponible en la lista activa.
+   */
+  public getNextChannel(currentId?: string): Item | null {
+    const list = this.canales?.list?.item || [];
+    if (list.length === 0) return null;
+    const currentIndex = list.findIndex(c => c.id === currentId);
+    if (currentIndex === -1) return list[0];
+    const nextIndex = (currentIndex + 1) % list.length;
+    return list[nextIndex];
+  }
 
 }
