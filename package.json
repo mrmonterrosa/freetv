@@ -8,10 +8,9 @@
     "dev": "ng serve --open",
     "serve": "ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist/freetv"
+    "build:gh": "ng build --base-href=/freetv/",
+    "predeploy": "npm run build:gh && node -e \"require('fs').copyFileSync('dist/freetv/index.html', 'dist/freetv/404.html')\"",
+    "deploy": "gh-pages -d dist/freetv -b gh-pages"
   },
   "private": true,
   "dependencies": {
