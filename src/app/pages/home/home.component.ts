@@ -16,6 +16,7 @@ export class HomeComponent {
 
   public toastMessage: string = '';
   public showToast: boolean = false;
+  public currentYear: number = new Date().getFullYear();
   private toastTimeout: any;
 
   constructor(private playerService: PlayerService,

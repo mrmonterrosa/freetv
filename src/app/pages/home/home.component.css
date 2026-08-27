@@ -66,25 +66,46 @@
   flex-direction: column;
 }
 
+.brand-title-link {
+  text-decoration: none;
+  display: block;
+}
+
 .brand-title {
   font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: #ffffff;
   line-height: 1.1;
+  transition: color 0.2s ease;
+}
+
+.brand-title-link:hover .brand-title {
+  color: var(--brand-400, #facc15);
 }
 
 .text-amber {
   color: var(--brand-400, #facc15);
 }
 
-.brand-eyebrow {
+.brand-eyebrow-link {
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--brand-400, #facc15);
+  text-decoration: none;
   line-height: 1;
   margin-top: 2px;
+  transition: all 0.2s ease;
+  display: inline-block;
+  opacity: 0.9;
+}
+
+.brand-eyebrow-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+  opacity: 1;
+  transform: translateX(1px);
 }
 
 .header-actions {

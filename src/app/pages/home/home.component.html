@@ -8,20 +8,25 @@
       
       <!-- Brand & Status -->
       <div class="brand-group">
-        <a routerLink="/" class="brand-logo-link">
-          <div class="brand-icon-box">
-            <i class="bi bi-broadcast-pin"></i>
-          </div>
+        <div class="d-flex align-items-center gap-3">
+          <a routerLink="/" class="brand-logo-link" title="Inicio FreeTV">
+            <div class="brand-icon-box">
+              <i class="bi bi-broadcast-pin"></i>
+            </div>
+          </a>
           <div class="brand-text">
-            <span class="brand-title">Free<span class="text-amber">TV</span></span>
-            <span class="brand-eyebrow">BY MR. MONTERROSA</span>
+            <a routerLink="/" class="brand-title-link" title="Inicio FreeTV">
+              <span class="brand-title">Free<span class="text-amber">TV</span></span>
+            </a>
+            <a 
+              href="https://mrmonterrosa.com" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="brand-eyebrow-link"
+              title="Visitar mrmonterrosa.com">
+              BY MR. MONTERROSA
+            </a>
           </div>
-        </a>
-
-        <!-- Live Pulse Badge -->
-        <div class="badge-brand-live ms-2 d-none d-sm-inline-flex">
-          <span class="live-dot"></span>
-          <span>EN VIVO</span>
         </div>
       </div>
 
@@ -39,20 +44,10 @@
           href="https://github.com/mrmonterrosa/freetv" 
           target="_blank" 
           rel="noopener noreferrer" 
-          class="btn-brand-secondary d-none d-sm-inline-flex"
+          class="btn-brand-secondary"
           title="Ver código fuente en GitHub">
           <i class="bi bi-github"></i>
           <span>GitHub</span>
-        </a>
-        <a 
-          href="https://mrmonterrosa.com" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          class="btn-brand-primary"
-          title="Visitar portafolio oficial">
-          <span class="d-none d-sm-inline">Carlos Monterrosa</span>
-          <span class="d-inline d-sm-none">Carlos M.</span>
-          <i class="bi bi-arrow-up-right"></i>
         </a>
       </div>
 
@@ -79,10 +74,10 @@
 
             <!-- Now Playing Channel Metadata Bar -->
             <div class="now-playing-bar mt-3 pt-3">
-              <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+              <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
                 
-                <!-- Channel Identity Info -->
-                <div class="d-flex align-items-center gap-3">
+                <!-- Channel Identity Info (Vertically Centered) -->
+                <div class="d-flex align-items-center gap-3 min-w-0">
                   <div class="now-playing-thumb">
                     <img 
                       *ngIf="canalSeleted.thumb_square" 
@@ -95,22 +90,11 @@
                     </div>
                   </div>
 
-                  <div>
-                    <div class="d-flex align-items-center gap-2">
-                      <h1 class="now-playing-title mb-0">{{ canalSeleted.title || 'Canal en vivo' }}</h1>
-                      <span class="badge-brand-live">
-                        <span class="live-dot"></span> LIVE
-                      </span>
-                    </div>
-                    
-                    <div class="d-flex align-items-center gap-2 mt-1">
-                      <span *ngIf="canalSeleted.group" class="badge-brand-subtle">
-                        <i class="bi bi-tag-fill me-1"></i>{{ canalSeleted.group }}
-                      </span>
-                      <span *ngIf="canalSeleted.country" class="badge-brand-amber">
-                        <i class="bi bi-geo-alt-fill me-1"></i>{{ canalSeleted.country }}
-                      </span>
-                    </div>
+                  <div class="d-flex align-items-center gap-2 min-w-0">
+                    <h1 class="now-playing-title mb-0 text-truncate">{{ canalSeleted.title || 'Canal en vivo' }}</h1>
+                    <span class="badge-brand-live flex-shrink-0">
+                      <span class="live-dot"></span> LIVE
+                    </span>
                   </div>
                 </div>
 
@@ -246,24 +230,16 @@
             </p>
           </div>
 
-          <div class="position-relative d-flex flex-wrap gap-2 pt-2" style="z-index: 1;">
-            <a 
-              href="https://mrmonterrosa.com" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              class="btn-brand-primary flex-grow-1">
-              <span>mrmonterrosa.com</span>
-              <svg class="bi bi-arrow-right ms-1" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
-            </a>
+          <div class="position-relative d-flex align-items-center justify-content-between pt-3 mt-3 border-top border-dark-subtle" style="z-index: 1;">
+            <span class="text-secondary small">© {{ currentYear }} Mr. Monterrosa</span>
             <a 
               href="https://github.com/mrmonterrosa/freetv" 
               target="_blank" 
               rel="noopener noreferrer" 
-              class="btn-brand-secondary"
+              class="btn-brand-secondary btn-sm"
               title="Repositorio de GitHub">
-              <i class="bi bi-github"></i>
+              <i class="bi bi-github me-1"></i>
+              <span>GitHub</span>
             </a>
           </div>
         </div>
