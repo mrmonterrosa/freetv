@@ -44,21 +44,32 @@
 }
 
 .brand-icon-box {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: var(--brand-400, #facc15);
-  color: #0a0a0a;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
-  box-shadow: 0 4px 14px rgba(250, 204, 21, 0.35);
-  transition: transform 0.2s ease;
+  padding: 5px;
+  backdrop-filter: blur(8px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.brand-icon-svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .brand-logo-link:hover .brand-icon-box {
-  transform: scale(1.05) rotate(-3deg);
+  background: rgba(250, 204, 21, 0.1);
+  border-color: rgba(250, 204, 21, 0.4);
+  transform: scale(1.06);
+  box-shadow: 0 0 14px rgba(250, 204, 21, 0.2);
 }
 
 .brand-text {
