@@ -3,7 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { M3UResponse, Item } from '../interfaces/m3u.response';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
-import { Subscription, catchError } from 'rxjs';
+import { Subscription, catchError, of } from 'rxjs';
+import { DEFAULT_CHANNELS_DATA } from '../data/default-channels.data';
 
 @Injectable({
   providedIn: 'root'
@@ -14,9 +15,9 @@ export class PlayerService {
 
   private canales: M3UResponse = {
     list: {
-      item: [],
-      service: '',
-      title: ''
+      item: [...DEFAULT_CHANNELS_DATA.list.item],
+      service: DEFAULT_CHANNELS_DATA.list.service || 'iptv',
+      title: DEFAULT_CHANNELS_DATA.list.title || 'iptv'
     },
   };
   
@@ -28,7 +29,7 @@ export class PlayerService {
     country: 'Global'
   };
 
-  private originalCanales: Item[] = [];
+  private originalCanales: Item[] = [...DEFAULT_CHANNELS_DATA.list.item];
   public selectedCategory: string = 'Todos';
   public searchTerm: string = '';
   public favorites: Set<string> = new Set<string>();
@@ -57,28 +58,10 @@ export class PlayerService {
   constructor(private http: HttpClient,
               private router: Router) {
     this.url = environment.url;
+    this.extractCategories();
     this.loadFavorites();
-    this.loadLocalChannels();
+    this.applyFilters();
     this.getChannelList();
-  }
-
-  /**
-   * Carga los canales locales de respaldo de forma inmediata para evitar pantallas vacías.
-   */
-  private loadLocalChannels(): void {
-    this.http.get<M3UResponse>('assets/channels.json').subscribe({
-      next: (data: M3UResponse) => {
-        if (data && data.list && Array.isArray(data.list.item) && this.originalCanales.length === 0) {
-          this.canales = data;
-          this.originalCanales = [...data.list.item];
-          this.extractCategories();
-          this.applyFilters();
-        }
-      },
-      error: (err) => {
-        console.warn('No se pudieron cargar canales locales:', err);
-      }
-    });
   }
 
   /**
@@ -144,13 +127,13 @@ export class PlayerService {
     return this.http.get<M3UResponse>(this.url)
       .pipe(
         catchError(err => {
-          console.warn('API remota no disponible o bloqueada por navegador, cargando canales locales:', err);
-          return this.http.get<M3UResponse>('assets/channels.json');
+          console.warn('API remota no disponible o bloqueada, conservando catálogo integrado:', err);
+          return of(null);
         })
       )
       .subscribe({
-        next: (data: M3UResponse) => {
-          if (data && data.list && Array.isArray(data.list.item)) {
+        next: (data: M3UResponse | null) => {
+          if (data && data.list && Array.isArray(data.list.item) && data.list.item.length > 0) {
             this.canales = data;
             this.originalCanales = [...data.list.item];
             this.extractCategories();
@@ -158,7 +141,7 @@ export class PlayerService {
           }
         },
         error: (err: any) => {
-          console.error('Error al cargar canales:', err);
+          console.warn('Error al actualizar canales remotos:', err);
         }
       });
   }

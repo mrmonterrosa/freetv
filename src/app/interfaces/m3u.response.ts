@@ -20,4 +20,6 @@ export interface Item {
     id?:          string;
     thumb_square?: string;
     group?:        string;
+    'tvg-url'?:    string;
+    [key: string]: any;
 }
