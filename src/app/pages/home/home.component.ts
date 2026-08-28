@@ -17,6 +17,8 @@ export class HomeComponent {
   public toastMessage: string = '';
   public showToast: boolean = false;
   public currentYear: number = new Date().getFullYear();
+  public thumbError: boolean = false;
+  private lastThumbChannelId?: string;
   private toastTimeout: any;
 
   constructor(private playerService: PlayerService,
@@ -27,7 +29,16 @@ export class HomeComponent {
   }
 
   get canalSeleted(): Item {
-    return this.playerService.selectedM3u;
+    const current = this.playerService.selectedM3u;
+    if (current?.id !== this.lastThumbChannelId) {
+      this.lastThumbChannelId = current?.id;
+      this.thumbError = false;
+    }
+    return current;
+  }
+
+  onThumbError(): void {
+    this.thumbError = true;
   }
 
   get totalCanales(): number {
