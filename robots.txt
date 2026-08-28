@@ -1,0 +1,30 @@
+﻿# FreeTV - Robots.txt
+# Platform for Free Online Live Television Streams
+# Developed by Carlos González (Mr. Monterrosa)
+
+User-agent: *
+Allow: /
+Disallow: /tmp/
+
+# AI & Search Engine Crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# XML Sitemaps
+Sitemap: https://tv.mrmonterrosa.com/sitemap.xml
+Sitemap: https://mrmonterrosa.github.io/freetv/sitemap.xml
