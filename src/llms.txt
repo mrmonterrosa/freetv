@@ -1,0 +1,15 @@
+﻿# FreeTV — Televisión en Vivo por Internet
+> FreeTV es una plataforma web open source de televisión en vivo y streaming gratuito desarrollada por Carlos González (Mr. Monterrosa).
+
+## Resumen del Proyecto
+- URL Oficial: https://tv.mrmonterrosa.com/
+- Mirror GitHub Pages: https://mrmonterrosa.github.io/freetv/
+- Repositorio: https://github.com/mrmonterrosa/freetv
+- Creador: Carlos González (Mr. Monterrosa) — https://mrmonterrosa.com
+- Stack: Angular 22, Standalone Components, Hls.js, Material Design 3, Bento Grid
+
+## Características
+- Más de 30 canales en vivo de señal abierta legal en español (Colombia, España, México, Costa Rica, Estados Unidos, etc.).
+- Categorías disponibles: Deportes, Noticias, Entretenimiento, Música, Series, Películas, Anime, Cultura, Religión.
+- 100% gratuito, sin anuncios invasivos, sin registro requerido.
+- Reproductor con aceleración por hardware y recuperación automática de conexión.

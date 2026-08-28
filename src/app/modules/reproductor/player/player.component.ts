@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Title, Meta } from '@angular/platform-browser';
 import { Item } from '../../../interfaces/m3u.response';
 import { PlayerService } from '../../../services/player.service';
 import Hls from 'hls.js';
@@ -42,7 +43,9 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
               private route: ActivatedRoute,
               private router: Router,
               private cdr: ChangeDetectorRef,
-              private ngZone: NgZone) { }
+              private ngZone: NgZone,
+              private titleService: Title,
+              private metaService: Meta) { }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -50,6 +53,7 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       if (id) {
         this.playerService.getChannelById(id);
       }
+      this.updateSeoMetadata(this.canal);
       if (this.videoPlayerRef || this.isIntro) {
         this.loadMedia();
       }
@@ -57,7 +61,44 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
+    this.updateSeoMetadata(this.canal);
     this.loadMedia();
+  }
+
+  /**
+   * Actualiza dinámicamente el título y metadatos SEO (OpenGraph, Description) según el canal activo.
+   */
+  private updateSeoMetadata(canal: Item): void {
+    if (canal && canal.id && canal.title && canal.media_url !== 'assets/movie.mp4') {
+      const title = canal.title;
+      const group = canal.group ? ` (${canal.group})` : '';
+      const country = canal.country ? ` • ${canal.country}` : '';
+      this.titleService.setTitle(`Ver ${title} en Vivo Online Gratis${country} | FreeTV`);
+      this.metaService.updateTag({
+        name: 'description',
+        content: `Disfruta la señal en directo de ${title}${group}${country} gratis por internet en FreeTV. Streaming en alta definición sin cortes.`
+      });
+      this.metaService.updateTag({
+        property: 'og:title',
+        content: `Ver ${title} en Vivo Online Gratis | FreeTV`
+      });
+      this.metaService.updateTag({
+        property: 'og:description',
+        content: `Transmisión oficial de ${title} en directo por internet en FreeTV.`
+      });
+      if (canal.thumb_square) {
+        this.metaService.updateTag({
+          property: 'og:image',
+          content: canal.thumb_square
+        });
+      }
+    } else {
+      this.titleService.setTitle('FreeTV — Televisión en Vivo | Mr. Monterrosa');
+      this.metaService.updateTag({
+        name: 'description',
+        content: 'FreeTV — Plataforma moderna de televisión en vivo con canales libres por internet. Deportes, noticias, entretenimiento y series en streaming de alta calidad.'
+      });
+    }
   }
 
   public loadMedia(): void {
