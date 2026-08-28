@@ -1,8 +1,51 @@
 <div class="player-cinema-wrapper">
   <div class="ratio ratio-16x9 player-screen">
     
-    <!-- Native HTML5 Hardware-Accelerated Video Player -->
+    <!-- 🎬 Cinematic Netflix-Style Intro Stage (when FreeTV welcome channel is active) -->
+    <div *ngIf="isIntro" class="netflix-intro-stage">
+      
+      <!-- Ambient Glow & Flare Beam -->
+      <div class="intro-beam"></div>
+      <div class="intro-ambient-glow"></div>
+      
+      <!-- Central Brand Animation Container -->
+      <div class="intro-brand-content">
+        
+        <!-- Glowing Minimalist Logo Box -->
+        <div class="intro-logo-container">
+          <div class="intro-logo-glow"></div>
+          <div class="intro-logo-box">
+            <img src="assets/freetv-icon.svg" alt="FreeTV Logo" class="intro-logo-img">
+            <div class="intro-light-sweep"></div>
+          </div>
+        </div>
+
+        <!-- Typography Reveal -->
+        <div class="intro-text-group">
+          <h1 class="intro-title">
+            <span class="intro-text-white">Free</span><span class="intro-text-amber">TV</span>
+          </h1>
+          <div class="intro-lens-flare"></div>
+          <p class="intro-tagline">TELEVISIÓN EN VIVO • SEÑALES LIBRES</p>
+          <span class="intro-eyebrow">BY MR. MONTERROSA</span>
+        </div>
+
+        <!-- Direct Actions -->
+        <div class="intro-actions d-flex align-items-center justify-content-center gap-2 mt-3">
+          <button type="button" class="btn-brand-primary btn-sm px-3" (click)="playFirstChannel()">
+            <i class="bi bi-play-fill me-1 fs-6"></i> Comenzar a ver
+          </button>
+          <button type="button" class="btn-brand-secondary btn-sm" (click)="replayIntro()" title="Repetir animación">
+            <i class="bi bi-arrow-repeat"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Native HTML5 Hardware-Accelerated Video Player (when live channel selected) -->
     <video 
+      *ngIf="!isIntro"
       #videoPlayer
       class="w-100 h-100 native-video-player"
       [poster]="canal.thumb_square || 'assets/Freetv.jpg'"
@@ -19,7 +62,7 @@
     </video>
 
     <!-- Loading Spinner Overlay with 3-Attempt Progress -->
-    <div *ngIf="isLoading" class="player-overlay loading-overlay">
+    <div *ngIf="!isIntro && isLoading" class="player-overlay loading-overlay">
       <div class="spinner-brand mb-2"></div>
       <span class="loading-label">{{ loadingMessage }}</span>
       <span *ngIf="attempt > 1" class="attempt-badge mt-2">
@@ -28,7 +71,7 @@
     </div>
 
     <!-- Error Recovery Overlay -->
-    <div *ngIf="hasError" class="player-overlay error-overlay">
+    <div *ngIf="!isIntro && hasError" class="player-overlay error-overlay">
       <div class="error-icon-circle mb-2">
         <i class="bi bi-broadcast-pin text-warning fs-3"></i>
       </div>

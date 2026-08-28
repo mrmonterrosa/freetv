@@ -23,6 +23,7 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public attempt: number = 1;
   public readonly MAX_ATTEMPTS: number = 3; // Reintentar hasta 3 veces
+  public introKey: number = 1;
 
   private connectionTimeout: any = null;
   private retryTimeout: any = null;
@@ -31,6 +32,10 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   get canal(): Item {
     return this.playerService.selectedM3u;
+  }
+
+  get isIntro(): boolean {
+    return !this.canal?.id || this.canal?.media_url === 'assets/movie.mp4';
   }
 
   constructor(private playerService: PlayerService,
@@ -45,7 +50,7 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       if (id) {
         this.playerService.getChannelById(id);
       }
-      if (this.videoPlayerRef) {
+      if (this.videoPlayerRef || this.isIntro) {
         this.loadMedia();
       }
     });
@@ -56,10 +61,35 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public loadMedia(): void {
+    if (this.isIntro) {
+      this.ngZone.run(() => {
+        this.isLoading = false;
+        this.hasError = false;
+        this.destroyHls();
+        this.cdr.detectChanges();
+      });
+      return;
+    }
     this.attempt = 1;
     this.loadingMessage = 'Conectando con la señal en vivo...';
     this.clearRetryTimeout();
     this.executeLoadMedia();
+  }
+
+  public playFirstChannel(): void {
+    const list = this.playerService.getCanales?.list?.item;
+    if (list && list.length > 0) {
+      const first = list[0];
+      if (first?.id) {
+        this.playerService.getChannelById(first.id);
+        this.router.navigate([first.id]);
+      }
+    }
+  }
+
+  public replayIntro(): void {
+    this.introKey++;
+    this.cdr.detectChanges();
   }
 
   private executeLoadMedia(): void {
