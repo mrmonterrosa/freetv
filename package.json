@@ -8,6 +8,7 @@
     "dev": "ng serve --open",
     "serve": "ng serve",
     "build": "ng build",
+    "build:tv": "ng build --base-href=/",
     "build:gh": "ng build --base-href=/freetv/",
     "predeploy": "npm run build:gh && node -e \"require('fs').copyFileSync('dist/freetv/index.html', 'dist/freetv/404.html')\"",
     "deploy": "gh-pages -d dist/freetv -b gh-pages"
