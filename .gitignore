@@ -45,3 +45,15 @@ testem.log
 .DS_Store
 Thumbs.db
 *.zip
+
+# Environment & Secrets (Python & Node)
+.env
+.env.*
+!.env.example
+*.db
+*.bak*
+tools/freetv-manager/venv/
+tools/freetv-manager/__pycache__/
+/tools/
+
+

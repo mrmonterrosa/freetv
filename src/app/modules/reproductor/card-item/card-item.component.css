@@ -85,6 +85,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   transition: color 0.2s ease;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .channel-card.active .channel-title {
@@ -96,6 +98,8 @@
   align-items: center;
   gap: 0.4rem;
   flex-wrap: wrap;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .badge-tag {

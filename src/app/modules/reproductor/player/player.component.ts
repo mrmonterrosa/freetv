@@ -1,20 +1,33 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  OnDestroy,
+  OnInit,
+  ChangeDetectorRef,
+  NgZone,
+  HostListener
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { Item } from '../../../interfaces/m3u.response';
 import { PlayerService } from '../../../services/player.service';
+import { SearchComponent } from '../search/search.component';
+import { CardItemComponent } from '../card-item/card-item.component';
 import Hls from 'hls.js';
 
 @Component({
   selector: 'app-player',
   templateUrl: './player.component.html',
   styleUrls: ['./player.component.css'],
-  imports: [CommonModule]
+  imports: [CommonModule, SearchComponent, CardItemComponent]
 })
 export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('videoPlayer') videoPlayerRef!: ElementRef<HTMLVideoElement>;
+  @ViewChild('playerContainer') playerContainerRef!: ElementRef<HTMLDivElement>;
   
   private hls: Hls | null = null;
   public isLoading: boolean = true;
@@ -23,13 +36,24 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   public loadingMessage: string = 'Conectando con la señal en vivo...';
 
   public attempt: number = 1;
-  public readonly MAX_ATTEMPTS: number = 3; // Reintentar hasta 3 veces
+  public readonly MAX_ATTEMPTS: number = 3;
   public introKey: number = 1;
+
+  // Estados de la barra de controles inferior
+  public isMuted: boolean = false;
+  public isFullscreen: boolean = false;
+  public showControls: boolean = true;
+  private controlsTimeout: any = null;
+
+  // Toast feedback
+  public toastMessage: string = '';
+  public showToast: boolean = false;
+  private toastTimeout: any = null;
 
   private connectionTimeout: any = null;
   private retryTimeout: any = null;
-  private readonly TIMEOUT_MS = 4500; // 4.5 segundos de espera activa por intento
-  private readonly RETRY_DELAY_MS = 1800; // 1.8 segundos de pausa visible entre reintentos
+  private readonly TIMEOUT_MS = 4500;
+  private readonly RETRY_DELAY_MS = 1800;
 
   get canal(): Item {
     return this.playerService.selectedM3u;
@@ -39,13 +63,31 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     return !this.canal?.id || this.canal?.media_url === 'assets/movie.mp4';
   }
 
-  constructor(private playerService: PlayerService,
-              private route: ActivatedRoute,
-              private router: Router,
-              private cdr: ChangeDetectorRef,
-              private ngZone: NgZone,
-              private titleService: Title,
-              private metaService: Meta) { }
+  get isFavorite(): boolean {
+    return this.playerService.isFavorite(this.canal?.id);
+  }
+
+  get channelBadge(): string {
+    return this.playerService.getChannelBadge(this.canal);
+  }
+
+  get canales() {
+    return this.playerService.getCanales;
+  }
+
+  get currentChannelId(): string | undefined {
+    return this.playerService.selectedM3u?.id;
+  }
+
+  constructor(
+    public playerService: PlayerService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone,
+    private titleService: Title,
+    private metaService: Meta
+  ) {}
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -58,6 +100,9 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loadMedia();
       }
     });
+
+    document.addEventListener('fullscreenchange', this.onFullscreenChange);
+    this.resetControlsTimeout();
   }
 
   ngAfterViewInit(): void {
@@ -65,8 +110,107 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadMedia();
   }
 
+  trackByChannelId(index: number, item: Item): string {
+    return item.id || `${index}`;
+  }
+
+  resetFilters(): void {
+    this.playerService.setCategory('Todos');
+    this.playerService.setSearchTerm('');
+  }
+
+  closeDrawer(): void {
+    this.playerService.closeDrawer();
+  }
+
+  onChannelSelect(item: Item): void {
+    if (window.innerWidth < 768) {
+      this.playerService.closeDrawer();
+    }
+  }
+
+  public displayToast(msg: string): void {
+    this.toastMessage = msg;
+    this.showToast = true;
+    if (this.toastTimeout) {
+      clearTimeout(this.toastTimeout);
+    }
+    this.toastTimeout = setTimeout(() => {
+      this.showToast = false;
+      this.cdr.detectChanges();
+    }, 2800);
+    this.cdr.detectChanges();
+  }
+
   /**
-   * Actualiza dinámicamente el título y metadatos SEO (OpenGraph, Description) según el canal activo.
+   * Manejador global de atajos de teclado para una experiencia tipo Smart IPTV.
+   */
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent): void {
+    const tag = (event.target as HTMLElement)?.tagName?.toLowerCase();
+    if (tag === 'input' || tag === 'textarea') return;
+
+    this.onUserActivity();
+
+    switch (event.key) {
+      case 'ArrowUp':
+        event.preventDefault();
+        this.playPreviousChannel();
+        break;
+      case 'ArrowDown':
+        event.preventDefault();
+        this.playNextChannel();
+        break;
+      case 'm':
+      case 'M':
+        this.toggleMute();
+        break;
+      case 'f':
+      case 'F':
+        this.toggleFullscreen();
+        break;
+      case 'l':
+      case 'L':
+      case ' ':
+        event.preventDefault();
+        this.playerService.toggleDrawer();
+        break;
+      case 'Escape':
+        if (this.playerService.isDrawerOpen) {
+          event.preventDefault();
+          this.playerService.closeDrawer();
+        }
+        break;
+    }
+  }
+
+  @HostListener('mousemove')
+  @HostListener('touchstart')
+  onUserActivity(): void {
+    this.showControls = true;
+    this.resetControlsTimeout();
+  }
+
+  private resetControlsTimeout(): void {
+    if (this.controlsTimeout) {
+      clearTimeout(this.controlsTimeout);
+    }
+    // Ocultar tras 3.5s si no hay error ni estamos en intro ni el drawer está abierto
+    this.controlsTimeout = setTimeout(() => {
+      if (!this.hasError && !this.isIntro && !this.isLoading && !this.playerService.isDrawerOpen) {
+        this.showControls = false;
+        this.cdr.detectChanges();
+      }
+    }, 3500);
+  }
+
+  private onFullscreenChange = (): void => {
+    this.isFullscreen = !!document.fullscreenElement;
+    this.cdr.detectChanges();
+  };
+
+  /**
+   * Actualiza dinámicamente el título y metadatos SEO.
    */
   private updateSeoMetadata(canal: Item): void {
     if (canal && canal.id && canal.title && canal.media_url !== 'assets/movie.mp4') {
@@ -158,7 +302,6 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    // Iniciar temporizador de 4.5s para este intento
     this.startConnectionTimeout();
 
     const isHls = mediaUrl.includes('.m3u8') || mediaUrl.includes('manifest') || !mediaUrl.endsWith('.mp4');
@@ -169,7 +312,7 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         lowLatencyMode: true,
         backBufferLength: 30,
         manifestLoadingTimeOut: 4000,
-        manifestLoadingMaxRetry: 0, // Controlamos los 3 intentos en nuestra capa
+        manifestLoadingMaxRetry: 0,
         levelLoadingTimeOut: 4000,
         levelLoadingMaxRetry: 0,
         fragLoadingTimeOut: 4000,
@@ -206,7 +349,6 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
     } else if (video.canPlayType('application/vnd.apple.mpegurl') || !isHls) {
-      // Safari / iOS nativo o MP4
       video.src = mediaUrl;
       video.load();
       video.play().then(() => {
@@ -229,7 +371,7 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.connectionTimeout = setTimeout(() => {
       this.ngZone.run(() => {
         if (this.isLoading && !this.hasError) {
-          console.warn(`Timeout de conexión (${this.TIMEOUT_MS}ms) alcanzado en intento (${this.attempt}/${this.MAX_ATTEMPTS}) para:`, this.canal?.title);
+          console.warn(`Timeout de conexión alcanzado en intento (${this.attempt}/${this.MAX_ATTEMPTS}) para:`, this.canal?.title);
           this.handleRetryOrError('Tiempo de espera agotado');
         }
       });
@@ -263,7 +405,6 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loadingMessage = `Reconectando señal en vivo (${this.attempt} de ${this.MAX_ATTEMPTS})...`;
         this.cdr.detectChanges();
       });
-      console.warn(`Pausa de ${this.RETRY_DELAY_MS}ms antes de intento ${this.attempt}/${this.MAX_ATTEMPTS} para:`, this.canal?.title);
       this.retryTimeout = setTimeout(() => {
         this.executeLoadMedia();
       }, this.RETRY_DELAY_MS);
@@ -280,6 +421,7 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       this.hasError = true;
       this.isLoading = false;
       this.errorMessage = msg;
+      this.showControls = true;
       this.cdr.detectChanges();
     });
   }
@@ -314,7 +456,6 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onVideoError(event: Event): void {
-    console.warn('Evento de error en elemento de video:', event);
     if (!this.hasError) {
       this.handleRetryOrError('Error en elemento de video');
     }
@@ -322,6 +463,27 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public retryPlayback(): void {
     this.loadMedia();
+  }
+
+  // =========================================================================
+  // 🎮 Controles Interactivos de la Barra Inferior (Estilo Vavoo / Modern IPTV)
+  // =========================================================================
+
+  public toggleMute(): void {
+    const video = this.videoPlayerRef?.nativeElement;
+    if (video) {
+      this.isMuted = !this.isMuted;
+      video.muted = this.isMuted;
+      this.displayToast(this.isMuted ? '🔇 Audio silenciado' : '🔊 Audio activado');
+    }
+  }
+
+  public playPreviousChannel(): void {
+    const prev = this.playerService.getPreviousChannel(this.canal?.id);
+    if (prev?.id) {
+      this.playerService.getChannelById(prev.id);
+      this.router.navigate([prev.id]);
+    }
   }
 
   public playNextChannel(): void {
@@ -332,6 +494,56 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  public toggleFavorite(): void {
+    if (this.canal?.id) {
+      const added = this.playerService.toggleFavorite(this.canal.id);
+      this.displayToast(added ? '⭐ Canal agregado a tus favoritos' : 'Canal quitado de tus favoritos');
+    }
+  }
+
+  public toggleFullscreen(): void {
+    const container = this.playerContainerRef?.nativeElement;
+    if (!container) return;
+
+    if (!document.fullscreenElement) {
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      } else if ((container as any).webkitRequestFullscreen) {
+        (container as any).webkitRequestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      }
+    }
+  }
+
+  public togglePiPOrShare(): void {
+    const video = this.videoPlayerRef?.nativeElement;
+    if (video && document.pictureInPictureEnabled && !video.disablePictureInPicture) {
+      if (document.pictureInPictureElement) {
+        document.exitPictureInPicture().catch(console.warn);
+      } else {
+        video.requestPictureInPicture().catch(() => {
+          this.copyStreamLink();
+        });
+      }
+    } else {
+      this.copyStreamLink();
+    }
+  }
+
+  public copyStreamLink(): void {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      this.displayToast('📋 Enlace copiado al portapapeles');
+    }).catch(() => {
+      this.displayToast('📋 Enlace: ' + url);
+    });
+  }
+
   private destroyHls(): void {
     if (this.hls) {
       this.hls.destroy();
@@ -340,8 +552,15 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    document.removeEventListener('fullscreenchange', this.onFullscreenChange);
     this.clearConnectionTimeout();
     this.clearRetryTimeout();
+    if (this.controlsTimeout) {
+      clearTimeout(this.controlsTimeout);
+    }
+    if (this.toastTimeout) {
+      clearTimeout(this.toastTimeout);
+    }
     this.destroyHls();
     if (this.videoPlayerRef?.nativeElement) {
       this.videoPlayerRef.nativeElement.pause();

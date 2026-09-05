@@ -1,17 +1,12 @@
-<div class="player-cinema-wrapper">
-  <div class="ratio ratio-16x9 player-screen">
+<div #playerContainer class="player-cinema-wrapper" [class.is-fullscreen]="isFullscreen">
+  <div class="player-stage-canvas">
     
-    <!-- 🎬 Cinematic Netflix-Style Intro Stage (when FreeTV welcome channel is active) -->
+    <!-- 🎬 Cinematic Intro Stage (when FreeTV welcome channel is active) -->
     <div *ngIf="isIntro" class="netflix-intro-stage">
-      
-      <!-- Ambient Glow & Flare Beam -->
       <div class="intro-beam"></div>
       <div class="intro-ambient-glow"></div>
       
-      <!-- Central Brand Animation Container -->
       <div class="intro-brand-content">
-        
-        <!-- Glowing Minimalist Logo Box -->
         <div class="intro-logo-container">
           <div class="intro-logo-glow"></div>
           <div class="intro-logo-box">
@@ -20,7 +15,6 @@
           </div>
         </div>
 
-        <!-- Typography Reveal -->
         <div class="intro-text-group">
           <h1 class="intro-title">
             <span class="intro-text-white">Free</span><span class="intro-text-amber">TV</span>
@@ -30,26 +24,23 @@
           <span class="intro-eyebrow">BY MR. MONTERROSA</span>
         </div>
 
-        <!-- Direct Actions -->
         <div class="intro-actions d-flex align-items-center justify-content-center gap-2 mt-3">
-          <button type="button" class="btn-brand-primary btn-sm px-3" (click)="playFirstChannel()">
-            <i class="bi bi-play-fill me-1 fs-6"></i> Comenzar a ver
+          <button type="button" class="btn-brand-primary btn-sm px-4" (click)="playFirstChannel()">
+            <i class="bi bi-play-fill me-1 fs-5"></i> Comenzar a ver
           </button>
-          <button type="button" class="btn-brand-secondary btn-sm" (click)="replayIntro()" title="Repetir animación">
-            <i class="bi bi-arrow-repeat"></i>
+          <button type="button" class="btn-brand-secondary btn-sm" (click)="playerService.toggleDrawer()" title="Explorar canales">
+            <i class="bi bi-collection-play me-1"></i> Explorar
           </button>
         </div>
-
       </div>
     </div>
 
-    <!-- Native HTML5 Hardware-Accelerated Video Player (when live channel selected) -->
+    <!-- 📺 Native HTML5 Video Element -->
     <video 
       *ngIf="!isIntro"
       #videoPlayer
       class="w-100 h-100 native-video-player"
       [poster]="canal.thumb_square || 'assets/Freetv.jpg'"
-      controls
       autoplay
       playsinline
       webkit-playsinline
@@ -61,7 +52,7 @@
       Tu navegador no soporta el elemento de video.
     </video>
 
-    <!-- Loading Spinner Overlay with 3-Attempt Progress -->
+    <!-- ⏳ Loading Spinner Overlay -->
     <div *ngIf="!isIntro && isLoading" class="player-overlay loading-overlay">
       <div class="spinner-brand mb-2"></div>
       <span class="loading-label">{{ loadingMessage }}</span>
@@ -70,7 +61,7 @@
       </span>
     </div>
 
-    <!-- Error Recovery Overlay -->
+    <!-- ⚠️ Error Recovery Overlay -->
     <div *ngIf="!isIntro && hasError" class="player-overlay error-overlay">
       <div class="error-icon-circle mb-2">
         <i class="bi bi-broadcast-pin text-warning fs-3"></i>
@@ -84,6 +75,184 @@
         <button type="button" class="btn-brand-secondary btn-sm" (click)="playNextChannel()">
           <i class="bi bi-skip-forward-fill me-1"></i> Siguiente canal
         </button>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         🎮 Modern Bottom Control Overlay Bar (Estilo Vavoo / IPTV Player M3)
+         ========================================================================= -->
+    <div 
+      *ngIf="!isIntro"
+      class="player-bottom-control-bar" 
+      [class.controls-hidden]="!showControls && !playerService.isDrawerOpen"
+      (mouseenter)="onUserActivity()">
+      
+      <!-- Left: Channel Identifier & Title -->
+      <div class="control-bar-left d-flex align-items-center gap-2 min-w-0">
+        <!-- Badge (CA / ES / CO / SP) -->
+        <div class="channel-code-badge flex-shrink-0" title="Código de canal / país">
+          {{ channelBadge }}
+        </div>
+        
+        <!-- Channel Title (Web visible, clean uppercase bold) -->
+        <div class="channel-display-title text-truncate" [title]="canal.title || 'Canal en vivo'">
+          {{ (canal.title || 'CANAL EN VIVO') | uppercase }}
+        </div>
+      </div>
+
+      <!-- Right: Action Toolbar (Volume, Prev, Next, Drawer, Fav, Fullscreen, Pip) -->
+      <div class="control-bar-right d-flex align-items-center gap-1 gap-sm-2 flex-shrink-0">
+        
+        <!-- 1. Volume / Mute -->
+        <button 
+          type="button" 
+          class="btn-control-action" 
+          (click)="toggleMute()" 
+          [title]="isMuted ? 'Activar sonido (M)' : 'Silenciar (M)'">
+          <i class="bi" [ngClass]="isMuted ? 'bi-volume-mute-fill text-danger' : 'bi-volume-up'"></i>
+        </button>
+
+        <!-- 2. Previous Channel (^) -->
+        <button 
+          type="button" 
+          class="btn-control-action" 
+          (click)="playPreviousChannel()" 
+          title="Canal anterior (Flecha Arriba)">
+          <i class="bi bi-chevron-up"></i>
+        </button>
+
+        <!-- 3. Next Channel (v) -->
+        <button 
+          type="button" 
+          class="btn-control-action" 
+          (click)="playNextChannel()" 
+          title="Canal siguiente (Flecha Abajo)">
+          <i class="bi bi-chevron-down"></i>
+        </button>
+
+        <!-- 4. Channel List / Drawer Toggle (☰) -->
+        <button 
+          type="button" 
+          class="btn-control-action" 
+          [class.active]="playerService.isDrawerOpen"
+          (click)="playerService.toggleDrawer()" 
+          title="Lista de canales (L / Espacio)">
+          <i class="bi bi-list"></i>
+        </button>
+
+        <!-- 5. Favorite Toggle (♡) -->
+        <button 
+          type="button" 
+          class="btn-control-action" 
+          [class.active]="isFavorite"
+          (click)="toggleFavorite()" 
+          [title]="isFavorite ? 'Quitar de favoritos' : 'Guardar en favoritos'">
+          <i class="bi" [ngClass]="isFavorite ? 'bi-heart-fill text-amber' : 'bi-heart'"></i>
+        </button>
+
+        <!-- 6. Fullscreen Toggle (⛶) -->
+        <button 
+          type="button" 
+          class="btn-control-action" 
+          (click)="toggleFullscreen()" 
+          [title]="isFullscreen ? 'Salir de pantalla completa (F)' : 'Pantalla completa (F)'">
+          <i class="bi" [ngClass]="isFullscreen ? 'bi-fullscreen-exit' : 'bi-fullscreen'"></i>
+        </button>
+
+        <!-- 7. PiP / External / Share (➔) -->
+        <button 
+          type="button" 
+          class="btn-control-action" 
+          (click)="togglePiPOrShare()" 
+          title="Picture-in-Picture / Compartir enlace">
+          <i class="bi bi-box-arrow-up-right"></i>
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- =========================================================================
+         📱 Material 3 You Slide-over Channel Drawer (Visible in Normal & Fullscreen)
+         ========================================================================= -->
+    <div 
+      class="m3-drawer-backdrop" 
+      [class.active]="playerService.isDrawerOpen" 
+      (click)="closeDrawer()" 
+      aria-hidden="true">
+    </div>
+
+    <aside 
+      class="m3-channel-drawer" 
+      [class.open]="playerService.isDrawerOpen" 
+      role="dialog" 
+      aria-label="Explorador de canales Material 3">
+      
+      <!-- Drawer Handle / Header -->
+      <div class="drawer-header">
+        <div class="d-flex align-items-center justify-content-between w-100">
+          <div class="d-flex align-items-center gap-2">
+            <div class="drawer-header-icon">
+              <i class="bi bi-collection-play-fill text-amber"></i>
+            </div>
+            <div>
+              <h2 class="drawer-title mb-0">Explorar Canales</h2>
+              <span class="text-muted small">{{ canales.list.item.length }} señales disponibles</span>
+            </div>
+          </div>
+
+          <button 
+            type="button" 
+            class="btn-drawer-close" 
+            (click)="closeDrawer()" 
+            title="Cerrar panel">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Search & Filter Chips (Material 3) -->
+      <div class="drawer-search-container">
+        <app-search></app-search>
+      </div>
+
+      <div class="drawer-divider"></div>
+
+      <!-- Scrollable Channels List -->
+      <div class="drawer-list-wrapper">
+        <div class="drawer-list-items" tabindex="0">
+          
+          <app-card-item 
+            [data]="item"
+            [isSelected]="!!item.id && item.id === currentChannelId"
+            (click)="onChannelSelect(item)"
+            *ngFor="let item of canales.list.item; trackBy: trackByChannelId">
+          </app-card-item>
+
+          <!-- Empty State -->
+          <div *ngIf="canales.list.item.length === 0" class="empty-state py-5 text-center">
+            <div class="empty-state-icon mb-3">
+              <i class="bi bi-search text-amber"></i>
+            </div>
+            <h3 class="empty-state-title">Sin canales encontrados</h3>
+            <p class="empty-state-text">No hay canales que coincidan con el filtro o término de búsqueda.</p>
+            <button type="button" class="btn-brand-secondary mt-2" (click)="resetFilters()">
+              <i class="bi bi-arrow-repeat me-1"></i> Ver todos los canales
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- =========================================================================
+         💬 Toast Feedback Notification (Visible in Normal & Fullscreen)
+         ========================================================================= -->
+    <div class="freetv-toast" [class.show]="showToast" role="status" aria-live="polite">
+      <div class="toast-content">
+        <i class="bi bi-check-circle-fill text-amber me-2"></i>
+        <span>{{ toastMessage }}</span>
       </div>
     </div>
 

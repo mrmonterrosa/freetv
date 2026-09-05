@@ -42,7 +42,7 @@
       [class.is-fav]="isFavorite"
       (click)="toggleFav($event)"
       [title]="isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'">
-      <i class="bi" [ngClass]="isFavorite ? 'bi-star-fill' : 'bi-star'"></i>
+      <i class="bi" [ngClass]="isFavorite ? 'bi-heart-fill text-amber' : 'bi-heart'"></i>
     </button>
     <div *ngIf="isSelected" class="live-pill">
       <span class="live-pulse-dot"></span>
@@ -50,3 +50,4 @@
     </div>
   </div>
 </div>
+

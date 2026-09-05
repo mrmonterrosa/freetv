@@ -255,6 +255,20 @@ export class PlayerService {
     }
   }
 
+  public isDrawerOpen: boolean = false;
+
+  public toggleDrawer(): void {
+    this.isDrawerOpen = !this.isDrawerOpen;
+  }
+
+  public openDrawer(): void {
+    this.isDrawerOpen = true;
+  }
+
+  public closeDrawer(): void {
+    this.isDrawerOpen = false;
+  }
+
   /**
    * Obtiene el siguiente canal disponible en la lista activa.
    */
@@ -267,4 +281,56 @@ export class PlayerService {
     return list[nextIndex];
   }
 
+  /**
+   * Obtiene el canal anterior en la lista activa.
+   */
+  public getPreviousChannel(currentId?: string): Item | null {
+    const list = this.canales?.list?.item || [];
+    if (list.length === 0) return null;
+    const currentIndex = list.findIndex(c => c.id === currentId);
+    if (currentIndex === -1) return list[list.length - 1];
+    const prevIndex = (currentIndex - 1 + list.length) % list.length;
+    return list[prevIndex];
+  }
+
+  /**
+   * Genera el badge corto (código de 2-3 letras) para el canal (ej: CA, ES, CO, SP).
+   */
+  public getChannelBadge(canal?: Item): string {
+    if (!canal) return 'CA';
+    if (canal.country && canal.country.trim().length > 0 && canal.country !== 'Global') {
+      const c = canal.country.trim().toUpperCase();
+      if (c.length <= 3) return c;
+      const map: Record<string, string> = {
+        'COLOMBIA': 'CO',
+        'ESPANA': 'ES',
+        'ESPAÑA': 'ES',
+        'MEXICO': 'MX',
+        'MÉXICO': 'MX',
+        'ARGENTINA': 'AR',
+        'CHILE': 'CL',
+        'PERU': 'PE',
+        'PERÚ': 'PE',
+        'VENEZUELA': 'VE',
+        'ECUADOR': 'EC',
+        'ESTADOS UNIDOS': 'US',
+        'USA': 'US'
+      };
+      if (map[c]) return map[c];
+      return c.substring(0, 2);
+    }
+    if (canal.group && canal.group.trim().length > 0) {
+      const g = canal.group.trim().toUpperCase();
+      if (g.startsWith('DEP')) return 'SP';
+      if (g.startsWith('NOT')) return 'NW';
+      if (g.startsWith('PEL') || g.startsWith('CIN')) return 'MV';
+      if (g.startsWith('SER')) return 'SR';
+      if (g.startsWith('MUS')) return 'MU';
+      return g.substring(0, 2);
+    }
+    return 'CA';
+  }
+
 }
+
+
