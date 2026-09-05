@@ -189,19 +189,52 @@ export class PlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   onUserActivity(): void {
     this.showControls = true;
     this.resetControlsTimeout();
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Alterna la visibilidad de los controles al tocar la pantalla en móviles o hacer clic en el video.
+   */
+  public toggleControls(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.showControls = !this.showControls;
+    if (this.showControls) {
+      this.resetControlsTimeout();
+    } else {
+      if (this.controlsTimeout) {
+        clearTimeout(this.controlsTimeout);
+      }
+    }
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Manejador de eventos táctiles para dispositivos móviles.
+   */
+  public onTouchCapture(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.toggleControls(event);
+  }
+
+  public goToIntro(): void {
+    this.router.navigate(['']);
   }
 
   private resetControlsTimeout(): void {
     if (this.controlsTimeout) {
       clearTimeout(this.controlsTimeout);
     }
-    // Ocultar tras 3.5s si no hay error ni estamos en intro ni el drawer está abierto
+    // Ocultar tras 4.5s si no hay error ni estamos en intro ni el drawer está abierto
     this.controlsTimeout = setTimeout(() => {
       if (!this.hasError && !this.isIntro && !this.isLoading && !this.playerService.isDrawerOpen) {
         this.showControls = false;
         this.cdr.detectChanges();
       }
-    }, 3500);
+    }, 4500);
   }
 
   private onFullscreenChange = (): void => {

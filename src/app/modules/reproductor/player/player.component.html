@@ -45,12 +45,63 @@
       playsinline
       webkit-playsinline
       crossorigin="anonymous"
+      (click)="toggleControls($event)"
       (playing)="onPlaying()"
       (canplay)="onCanPlay()"
       (waiting)="onWaiting()"
       (error)="onVideoError($event)">
       Tu navegador no soporta el elemento de video.
     </video>
+
+    <!-- 👆 Touch & Click Capture Area over the video stage -->
+    <div 
+      *ngIf="!isIntro"
+      class="player-touch-capture-area" 
+      (click)="toggleControls($event)"
+      (touchstart)="onTouchCapture($event)"
+      aria-label="Alternar controles del reproductor">
+    </div>
+
+    <!-- =========================================================================
+         🌟 Modern Top Header Control Bar (Mobile-friendly Channel & Menu Access)
+         ========================================================================= -->
+    <div 
+      *ngIf="!isIntro"
+      class="player-top-control-bar" 
+      [class.controls-hidden]="!showControls && !playerService.isDrawerOpen"
+      (click)="$event.stopPropagation()"
+      (touchstart)="$event.stopPropagation(); onUserActivity()">
+      
+      <!-- Left: FreeTV Logo / Home Button -->
+      <div class="top-bar-left d-flex align-items-center gap-2">
+        <button type="button" class="btn-top-brand" (click)="goToIntro()" title="Ir al inicio de FreeTV">
+          <img src="assets/freetv-icon.svg" alt="FreeTV Icon" class="top-brand-icon">
+          <span class="top-brand-text">Free<span class="text-amber">TV</span></span>
+        </button>
+      </div>
+
+      <!-- Center: Active Channel Name -->
+      <div class="top-bar-center d-flex align-items-center justify-content-center min-w-0 px-2">
+        <div class="top-channel-pill text-truncate" [title]="canal.title || ''">
+          <span class="live-dot me-1"></span>
+          <span class="channel-name-text">{{ canal.title || 'EN VIVO' }}</span>
+        </div>
+      </div>
+
+      <!-- Right: Direct Menu / Channel List Button (Prominent for Mobile) -->
+      <div class="top-bar-right d-flex align-items-center gap-2">
+        <button 
+          type="button" 
+          class="btn-top-menu-pill"
+          [class.active]="playerService.isDrawerOpen"
+          (click)="playerService.toggleDrawer()" 
+          title="Abrir lista de canales">
+          <i class="bi bi-collection-play-fill me-1 text-amber"></i>
+          <span>Canales</span>
+        </button>
+      </div>
+
+    </div>
 
     <!-- ⏳ Loading Spinner Overlay -->
     <div *ngIf="!isIntro && isLoading" class="player-overlay loading-overlay">
@@ -85,6 +136,8 @@
       *ngIf="!isIntro"
       class="player-bottom-control-bar" 
       [class.controls-hidden]="!showControls && !playerService.isDrawerOpen"
+      (click)="$event.stopPropagation()"
+      (touchstart)="$event.stopPropagation(); onUserActivity()"
       (mouseenter)="onUserActivity()">
       
       <!-- Left: Channel Identifier & Title -->

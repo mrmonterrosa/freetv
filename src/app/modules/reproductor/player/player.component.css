@@ -56,6 +56,140 @@
 }
 
 /* ==========================================================================
+   👆 Touch & Click Capture Overlay Area
+   ========================================================================== */
+
+.player-touch-capture-area {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  background-color: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ==========================================================================
+   🌟 Modern Top Header Control Bar (Mobile & Desktop)
+   ========================================================================== */
+
+.player-top-control-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  padding-top: max(1rem, env(safe-area-inset-top, 16px));
+  background: linear-gradient(
+    180deg,
+    rgba(10, 11, 14, 0.95) 0%,
+    rgba(10, 11, 14, 0.7) 60%,
+    rgba(10, 11, 14, 0) 100%
+  );
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.player-top-control-bar.controls-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-15px);
+}
+
+.btn-top-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.btn-top-brand:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.top-brand-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.top-brand-text {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.top-channel-pill {
+  display: inline-flex;
+  align-items: center;
+  max-width: 260px;
+  padding: 0.35rem 0.85rem;
+  background-color: rgba(24, 25, 30, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.channel-name-text {
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+  display: inline-block;
+}
+
+.btn-top-menu-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.95rem;
+  background-color: rgba(250, 204, 21, 0.12);
+  border: 1px solid rgba(250, 204, 21, 0.4);
+  border-radius: 20px;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.btn-top-menu-pill:hover,
+.btn-top-menu-pill.active {
+  background-color: var(--brand-400);
+  color: #000000;
+  border-color: var(--brand-400);
+}
+
+.btn-top-menu-pill:hover i,
+.btn-top-menu-pill.active i {
+  color: #000000 !important;
+}
+
+/* ==========================================================================
    🎮 Modern Bottom Control Overlay Bar (Estilo Vavoo / IPTV Player)
    ========================================================================== */
 
@@ -453,42 +587,74 @@
 
 @media (max-width: 767.98px) {
   .player-cinema-wrapper {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
     min-height: 100vh;
+    min-height: 100dvh;
+    max-height: 100dvh;
   }
   
   .player-stage-canvas {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
     min-height: 100vh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+  }
+
+  .player-top-control-bar {
+    padding: 0.65rem 0.75rem;
+    padding-top: max(0.65rem, env(safe-area-inset-top, 12px));
+  }
+
+  .top-brand-text {
+    display: none;
+  }
+
+  .top-channel-pill {
+    max-width: 170px;
+    padding: 0.25rem 0.65rem;
+    font-size: 0.8rem;
+  }
+
+  .btn-top-menu-pill {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.825rem;
   }
 
   .player-bottom-control-bar {
-    padding: 0.75rem 0.85rem;
+    padding: 0.65rem 0.75rem;
+    padding-bottom: max(0.85rem, env(safe-area-inset-bottom, 16px));
   }
 
   .control-bar-left {
-    max-width: 35%;
-    gap: 0.5rem;
+    max-width: 25%;
+    gap: 0.4rem;
   }
 
   .channel-code-badge {
-    min-width: 36px;
+    min-width: 34px;
     height: 30px;
-    padding: 0 0.4rem;
+    padding: 0 0.35rem;
     font-size: 0.75rem;
   }
 
   .channel-display-title {
-    font-size: 0.9rem;
     display: none;
   }
 
   .control-bar-right {
-    gap: 0.2rem;
+    gap: 0.3rem;
   }
 
   .btn-control-action {
-    width: 36px;
-    height: 36px;
-    font-size: 1.05rem;
+    width: 40px;
+    height: 40px;
+    font-size: 1.15rem;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.06);
   }
 
   .m3-channel-drawer {
@@ -499,6 +665,7 @@
     width: 100%;
     max-width: 100%;
     height: 85vh;
+    height: 85dvh;
     border-left: none;
     border-top: 1px solid var(--border-dark);
     border-top-left-radius: 28px;
